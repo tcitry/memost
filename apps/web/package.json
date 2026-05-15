@@ -4,25 +4,33 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "dev": "next dev --port 3000",
-    "build": "next build",
-    "start": "next start",
+    "dev": "WRANGLER_LOG_PATH=.wrangler/logs vite --host 0.0.0.0 --port 3000",
+    "build": "WRANGLER_LOG_PATH=.wrangler/logs vite build",
+    "start": "WRANGLER_LOG_PATH=.wrangler/logs wrangler dev --port 3000",
+    "deploy": "WRANGLER_LOG_PATH=.wrangler/logs wrangler deploy",
     "lint": "eslint --max-warnings 0",
-    "check-types": "next typegen && tsc --noEmit"
+    "check-types": "tsc --noEmit"
   },
   "dependencies": {
+    "@clerk/tanstack-react-start": "^1.2.3",
     "@repo/ui": "workspace:*",
-    "next": "16.2.0",
-    "react": "^19.2.0",
-    "react-dom": "^19.2.0"
+    "@tanstack/react-router": "^1.167.35",
+    "@tanstack/react-start": "^1.167.65",
+    "react": "^19.2.6",
+    "react-dom": "^19.2.6"
   },
   "devDependencies": {
+    "@cloudflare/vite-plugin": "^1.36.4",
     "@repo/eslint-config": "workspace:*",
     "@repo/typescript-config": "workspace:*",
+    "@tanstack/router-plugin": "^1.167.35",
     "@types/node": "^22.15.3",
-    "@types/react": "19.2.2",
-    "@types/react-dom": "19.2.2",
+    "@types/react": "19.2.14",
+    "@types/react-dom": "19.2.3",
     "eslint": "^9.39.1",
-    "typescript": "5.9.2"
+    "typescript": "5.9.2",
+    "vite": "^7.2.7",
+    "vite-tsconfig-paths": "^5.1.4",
+    "wrangler": "^4.90.1"
   }
 }

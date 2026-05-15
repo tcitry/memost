@@ -37,3 +37,5 @@ export const config = [
     },
   },
 ];
+
+export const reactConfig = config;

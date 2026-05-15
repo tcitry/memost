@@ -1,0 +1,24 @@
+---
+title: Cloudflare runtime
+description: How memo.st uses Workers, D1, Vectorize, and static Astro output.
+order: 3
+---
+
+memo.st splits the product into static documentation, the web app, and the API
+worker.
+
+## Static docs
+
+`apps/docs` is Astro with `output: "static"`. Documentation content lives in MDX
+collections and builds into plain files that can be served from any static host.
+
+## API worker
+
+`apps/api` runs on Cloudflare Workers. D1 stores memory records and Vectorize
+stores embeddings for semantic retrieval. Binding types are generated with:
+
+```bash
+pnpm --filter @memost/api-worker cf-typegen
+```
+
+Run it again after editing `wrangler.jsonc`.

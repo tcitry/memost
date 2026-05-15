@@ -9,7 +9,10 @@
 # testing
 /coverage
 
-# next.js
+# cloudflare
+/.wrangler
+
+# framework caches
 /.next/
 /out/
 

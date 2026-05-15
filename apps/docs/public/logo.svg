@@ -1,0 +1,11 @@
+<svg width="256" height="256" viewBox="0 0 256 256" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- iuv-stack logo: An equilateral triangle formed by 3 perfectly touching equilateral triangles (Triforce) -->
+  <g fill="black">
+    <!-- Top Triangle -->
+    <polygon points="128,24 78,110.603 178,110.603" />
+    <!-- Bottom Left Triangle -->
+    <polygon points="78,110.603 28,197.205 128,197.205" />
+    <!-- Bottom Right Triangle -->
+    <polygon points="178,110.603 128,197.205 228,197.205" />
+  </g>
+</svg>

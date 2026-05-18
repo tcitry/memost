@@ -12,10 +12,10 @@
     "check-types": "tsc --noEmit"
   },
   "dependencies": {
-    "@clerk/tanstack-react-start": "^1.2.3",
+    "@clerk/tanstack-react-start": "^1.2.5",
     "@repo/ui": "workspace:*",
-    "@tanstack/react-router": "^1.167.35",
-    "@tanstack/react-start": "^1.167.65",
+    "@tanstack/react-router": "^1.170.4",
+    "@tanstack/react-start": "^1.168.6",
     "react": "^19.2.6",
     "react-dom": "^19.2.6"
   },
@@ -23,7 +23,7 @@
     "@cloudflare/vite-plugin": "^1.36.4",
     "@repo/eslint-config": "workspace:*",
     "@repo/typescript-config": "workspace:*",
-    "@tanstack/router-plugin": "^1.167.35",
+    "@tanstack/router-plugin": "^1.168.6",
     "@types/node": "^22.15.3",
     "@types/react": "19.2.14",
     "@types/react-dom": "19.2.3",

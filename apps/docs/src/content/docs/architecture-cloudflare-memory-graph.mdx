@@ -1,0 +1,326 @@
+---
+title: Cloudflare memory graph architecture
+description: Technical proposal for building memo.st as a Cloudflare-native agent memory SaaS.
+---
+
+memo.st is a Cloudflare-native memory platform for AI agents. The first
+architecture should avoid running Postgres, Neo4j, Redis, or a separate vector
+database. Workers own the API and orchestration layer, D1 stores durable
+relational memory state, Vectorize stores embeddings, and Cloudflare background
+primitives handle non-interactive work.
+
+This design is inspired by the edge-native knowledge graph pattern described in
+[Edge-Native Knowledge Graphs with Cloudflare D1 + Vectorize](https://dev.to/yedanyagamiaicmd/edge-native-knowledge-graphs-with-cloudflare-d1-vectorize-no-database-server-required-5a9l):
+D1 models entities and relationships, Vectorize provides semantic recall, and
+the Worker chooses the retrieval strategy per query.
+
+## Product target
+
+memo.st should expose memory as infrastructure:
+
+- Store facts, preferences, events, summaries, and relationships for agents.
+- Retrieve context by tenant, subject, agent, namespace, time, and semantic
+  meaning.
+- Support mem0-style APIs first, then add graph-aware and strategy-aware
+  retrieval.
+- Run on Cloudflare as the default and primary deployment target.
+
+## Cloudflare services
+
+| Capability | Cloudflare service | Role |
+| --- | --- | --- |
+| API runtime | Workers + Hono | Public memory API, Clerk auth verification, request routing |
+| Web app | TanStack Start on Workers | SaaS console, onboarding, workspace management |
+| Docs | Astro static output | Static documentation at memo.st |
+| Durable SQL | D1 | Tenants, memories, entities, relationships, ingestion state, audit logs |
+| Semantic search | Vectorize | Embedding index for memory chunks and entity summaries |
+| Embeddings | Workers AI or provider adapter | Generate vectors when callers do not provide embeddings |
+| Async ingestion | Queues | Chunking, embedding, entity extraction, graph updates |
+| Long jobs | Workflows | Re-indexing, retention jobs, export/import, replay evaluation |
+| Low-latency cache | KV or Cache API | Repeated retrieval plans and hot tenant configuration |
+| Files and exports | R2 | Bulk imports, raw source documents, customer exports |
+| Tenant coordination | Durable Objects, later | Per-tenant write serialization or realtime collaboration when needed |
+
+Cloudflare D1 is a managed serverless SQLite database with Worker bindings and
+SQLite semantics. Vectorize supports Worker bindings, namespaces, vector
+queries, and metadata filtering, which makes it a good fit for tenant-scoped
+semantic retrieval. Workers AI can be bound directly into Workers for embedding
+generation.
+
+## Core data model
+
+The durable source of truth lives in D1.
+
+```sql
+CREATE TABLE organizations (
+  id TEXT PRIMARY KEY,
+  clerk_org_id TEXT,
+  name TEXT NOT NULL,
+  plan TEXT NOT NULL DEFAULT 'free',
+  created_at TEXT NOT NULL
+);
+
+CREATE TABLE memories (
+  id TEXT PRIMARY KEY,
+  organization_id TEXT NOT NULL,
+  subject_id TEXT NOT NULL,
+  agent_id TEXT NOT NULL,
+  namespace TEXT NOT NULL,
+  kind TEXT NOT NULL,
+  content TEXT NOT NULL,
+  metadata_json TEXT NOT NULL DEFAULT '{}',
+  confidence REAL NOT NULL DEFAULT 0.8,
+  source TEXT,
+  created_at TEXT NOT NULL,
+  updated_at TEXT NOT NULL,
+  deleted_at TEXT,
+  FOREIGN KEY (organization_id) REFERENCES organizations(id)
+);
+
+CREATE TABLE entities (
+  id TEXT PRIMARY KEY,
+  organization_id TEXT NOT NULL,
+  type TEXT NOT NULL,
+  name TEXT NOT NULL,
+  canonical_key TEXT NOT NULL,
+  properties_json TEXT NOT NULL DEFAULT '{}',
+  confidence REAL NOT NULL DEFAULT 0.8,
+  created_at TEXT NOT NULL,
+  updated_at TEXT NOT NULL
+);
+
+CREATE TABLE relationships (
+  id TEXT PRIMARY KEY,
+  organization_id TEXT NOT NULL,
+  source_entity_id TEXT NOT NULL,
+  target_entity_id TEXT NOT NULL,
+  type TEXT NOT NULL,
+  properties_json TEXT NOT NULL DEFAULT '{}',
+  confidence REAL NOT NULL DEFAULT 0.8,
+  created_at TEXT NOT NULL,
+  updated_at TEXT NOT NULL
+);
+
+CREATE TABLE memory_entities (
+  memory_id TEXT NOT NULL,
+  entity_id TEXT NOT NULL,
+  role TEXT NOT NULL,
+  PRIMARY KEY (memory_id, entity_id, role)
+);
+```
+
+Add FTS5 virtual tables for keyword search over memories, chunks, and entity
+aliases. D1 supports SQLite SQL semantics and FTS5, so exact recall and semantic
+recall can stay in the Cloudflare data plane.
+
+## Vector model
+
+Vectorize stores searchable vectors; D1 keeps canonical text and metadata.
+
+Vector ID format:
+
+```text
+mem:{memoryId}:chunk:{chunkId}
+ent:{entityId}:summary
+rel:{relationshipId}:summary
+```
+
+Vector namespace:
+
+```text
+org:{organizationId}
+```
+
+Vector metadata:
+
+```json
+{
+  "organizationId": "org_demo",
+  "subjectId": "customer_acme",
+  "agentId": "support-agent",
+  "namespace": "support",
+  "kind": "fact",
+  "createdAt": 1760000000
+}
+```
+
+Use Vectorize namespaces for tenant isolation and metadata filters for subject,
+agent, namespace, kind, and time. Create metadata indexes before production
+ingestion so filtered vector search works on newly inserted vectors.
+
+## Write path
+
+1. Client calls `POST /v1/memories`.
+2. Worker verifies Clerk session or API key and resolves `organizationId`.
+3. Worker validates tenant limits and writes the memory row to D1.
+4. If the caller provided an embedding, the Worker upserts into Vectorize.
+5. If the embedding is missing, the Worker publishes an ingestion job to Queues.
+6. Queue consumer chunks long content, generates embeddings, upserts Vectorize,
+   extracts entities, and writes graph rows to D1.
+7. Workflow jobs periodically rebuild FTS, refresh entity summaries, run
+   retention policies, and evaluate retrieval feedback.
+
+The synchronous path should acknowledge durable D1 writes quickly. Embedding and
+graph extraction should not block the API unless the caller explicitly asks for
+strong indexing semantics.
+
+## Read path
+
+Expose three levels of retrieval.
+
+### Simple memory search
+
+Use D1 filters and FTS5:
+
+- tenant and namespace filters
+- exact metadata filters
+- recency and confidence ordering
+- keyword search for IDs, names, and literal phrases
+
+### Semantic recall
+
+Use Workers AI or caller-provided query embeddings, then query Vectorize:
+
+- namespace by organization
+- metadata filter by subject, agent, namespace, kind, and time
+- hydrate returned IDs from D1
+- rerank by score, confidence, recency, and relationship strength
+
+### Graph-aware recall
+
+Start from semantic or keyword seeds, then traverse D1 relationships:
+
+- direct neighbors for context expansion
+- causal edges for "why" questions
+- temporal edges for timeline questions
+- entity aliases for identity resolution
+- reciprocal rank fusion across FTS, vector, and graph-walk results
+
+The API should return both memories and provenance: matched strategy, score,
+source memory IDs, entity IDs, and relationship IDs.
+
+## Retrieval planner
+
+The first planner can be deterministic:
+
+| Query intent | Strategy |
+| --- | --- |
+| exact phrase or ID | D1 + FTS5 |
+| "similar to", "remind me", broad natural language | Vectorize |
+| "who/what is related" | Vectorize seed + graph walk |
+| "why did" or "caused by" | causal relationship traversal |
+| "when", "timeline", "recent" | temporal D1 filter + FTS5 |
+| default | hybrid FTS + Vectorize + small graph expansion |
+
+Store retrieval traces in D1:
+
+- query class
+- strategies used
+- candidate counts
+- selected memory IDs
+- user or agent feedback
+- latency and token impact
+
+Later, use those traces to tune fusion weights per organization, namespace, and
+agent type.
+
+## API surface
+
+MVP endpoints:
+
+```text
+POST /v1/memories
+GET  /v1/memories/:id
+GET  /v1/memories
+POST /v1/memories/search
+POST /v1/memories/retrieve
+POST /v1/feedback
+```
+
+Next endpoints:
+
+```text
+GET  /v1/entities
+GET  /v1/entities/:id/neighbors
+POST /v1/graph/query
+POST /v1/imports
+GET  /v1/retrieval-traces
+```
+
+## Multi-tenancy and security
+
+- Clerk organizations map to `organizations.id`.
+- Every D1 table carries `organization_id` except global product tables.
+- Every Vectorize query uses an organization namespace.
+- API keys are scoped to organization, environment, and capability.
+- Audit logs record memory writes, deletes, exports, and admin access.
+- Soft deletes happen immediately; hard deletes and Vectorize cleanup run in
+  background jobs.
+
+## Deployment environments
+
+Use separate Cloudflare resources per environment:
+
+- `memo-st-web` Worker for the TanStack Start app.
+- `memo-st-api` Worker for Hono APIs.
+- D1 databases: `memost_dev`, `memost_staging`, `memost_prod`.
+- Vectorize indexes: `memost_memory_dev`, `memost_memory_staging`,
+  `memost_memory_prod`.
+- Queues and Workflows split by environment.
+
+Avoid sharing Vectorize indexes across environments because metadata indexes
+must be planned before ingestion.
+
+## MVP milestones
+
+### Phase 1: Memory API
+
+- Clerk auth and API-key auth.
+- D1 schema for organizations, memories, chunks, and audit logs.
+- Vectorize indexing for provided embeddings.
+- Search with D1 fallback and Vectorize when embeddings exist.
+
+### Phase 2: Cloudflare-native embedding pipeline
+
+- Workers AI binding for embeddings.
+- Queue-based async indexing.
+- Idempotent re-index jobs.
+- Metadata indexes for tenant, subject, agent, namespace, kind, and timestamp.
+
+### Phase 3: Memory graph
+
+- Entity extraction pipeline.
+- D1 graph tables for entities and relationships.
+- Hybrid retrieval planner.
+- Graph walk and causal/temporal retrieval.
+
+### Phase 4: SaaS controls
+
+- Tenant quotas and billing events.
+- Workspace console.
+- Retrieval trace dashboard.
+- Export, deletion, and retention controls.
+
+## Open decisions
+
+- Embedding provider: start with Workers AI, keep an adapter for OpenAI,
+  Together, or customer-provided embeddings.
+- Entity extraction model: Workers AI first if quality is enough; external LLM
+  fallback behind AI Gateway if needed.
+- Graph complexity: D1 adjacency tables for MVP; Durable Objects only if
+  per-tenant write serialization or realtime graph sessions become necessary.
+- Cache layer: start with Cache API for read responses; add KV only for hot
+  tenant config and retrieval plans.
+- Eval loop: start with explicit feedback, then add passive signals such as
+  selected context, agent tool success, and memory deletion.
+
+## References
+
+- [Edge-Native Knowledge Graphs with Cloudflare D1 + Vectorize](https://dev.to/yedanyagamiaicmd/edge-native-knowledge-graphs-with-cloudflare-d1-vectorize-no-database-server-required-5a9l)
+- [Cloudflare D1 documentation](https://developers.cloudflare.com/d1/)
+- [Cloudflare D1 SQL statements and FTS5](https://developers.cloudflare.com/d1/sql-api/sql-statements/)
+- [Cloudflare Vectorize introduction](https://developers.cloudflare.com/vectorize/get-started/intro/)
+- [Cloudflare Vectorize metadata filtering](https://developers.cloudflare.com/vectorize/reference/metadata-filtering/)
+- [Cloudflare Vectorize and Workers AI embeddings](https://developers.cloudflare.com/vectorize/get-started/embeddings/)
+- [Cloudflare Queues](https://developers.cloudflare.com/queues/get-started/)
+- [Cloudflare Workflows](https://developers.cloudflare.com/workflows/)

@@ -10,10 +10,13 @@ export default defineConfig({
   },
   integrations: [
     starlight({
-      title: "memo.st docs",
+      title: "Memost Docs",
       description: "Documentation for memo.st Agent memory infrastructure.",
       favicon: "/logo.svg",
       customCss: ["./src/styles/global.css"],
+      components: {
+        Sidebar: "./src/components/SectionSidebar.astro",
+      },
       social: [
         {
           icon: "github",
@@ -23,15 +26,26 @@ export default defineConfig({
       ],
       sidebar: [
         {
-          label: "Start here",
-          items: [{ slug: "getting-started" }],
+          label: "Guide",
+          items: [
+            { label: "Overview", link: "/guide/" },
+            { slug: "guide/concepts" },
+          ],
         },
         {
-          label: "Reference",
+          label: "API",
           items: [
-            { slug: "memory-api" },
-            { slug: "cloudflare-runtime" },
-            { slug: "architecture-cloudflare-memory-graph" },
+            { label: "Overview", link: "/api/" },
+            { slug: "api/memories" },
+            { slug: "api/runtime" },
+          ],
+        },
+        {
+          label: "CLI",
+          items: [
+            { label: "Overview", link: "/cli/" },
+            { slug: "cli/commands" },
+            { slug: "cli/development" },
           ],
         },
       ],

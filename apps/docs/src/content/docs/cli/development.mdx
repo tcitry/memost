@@ -1,0 +1,51 @@
+---
+title: CLI development
+description: Build, test, and extend the Commander.js CLI package.
+---
+
+## Package scripts
+
+```bash
+pnpm --filter cli dev --help
+pnpm --filter cli build
+pnpm --filter cli lint
+pnpm --filter cli check-types
+```
+
+## Source layout
+
+```text
+apps/cli/
+  src/index.ts
+  package.json
+  tsconfig.json
+  eslint.config.js
+```
+
+`src/index.ts` creates a Commander `Command`, sets the CLI name and version, and
+registers subcommands.
+
+## Add a command
+
+Add new commands in `apps/cli/src/index.ts`:
+
+```ts
+program
+  .command("status")
+  .description("Check memo.st CLI configuration.")
+  .action(() => {
+    console.log("memo.st CLI is configured.");
+  });
+```
+
+Keep command handlers small. Move larger API clients, config loading, and file
+operations into separate modules before adding more workflows.
+
+## Release shape
+
+The package `bin` points at `./dist/index.js`, so the build step must run before
+the CLI is published or packed:
+
+```bash
+pnpm --filter cli build
+```

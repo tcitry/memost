@@ -1,15 +1,15 @@
 ---
-title: memo.st docs
+title: Memost Documentation
 description: Documentation for memo.st Agent memory infrastructure.
 template: splash
 hero:
-  tagline: Build memory-aware agents on memo.st.
+  tagline: API and CLI references for memo.st.
   actions:
-    - text: Get started
-      link: /getting-started/
+    - text: Start with the guide
+      link: /guide/
       icon: right-arrow
-    - text: Memory API
-      link: /memory-api/
+    - text: API docs
+      link: /api/
       variant: minimal
 ---
 
@@ -18,13 +18,16 @@ import { Card, CardGrid } from "@astrojs/starlight/components";
 ## What's inside
 
 <CardGrid stagger>
-  <Card title="Getting started" icon="rocket">
-    Set up memo.st concepts, tenants, and your first memory records.
+  <Card title="Guide" icon="rocket">
+    Learn the core memo.st concepts: organizations, subjects, agents,
+    namespaces, memories, and retrieval.
   </Card>
-  <Card title="Memory API" icon="document">
-    HTTP endpoints for creating, listing, retrieving, and searching memories.
+  <Card title="API" icon="document">
+    Create, list, retrieve, and search durable agent memories through the
+    Cloudflare Worker API.
   </Card>
-  <Card title="Cloudflare runtime" icon="cloud-download">
-    How memo.st uses Workers, D1, Vectorize, and static Astro output.
+  <Card title="CLI" icon="setting">
+    Install and develop the `memost` command line package for local workflows
+    and future API automation.
   </Card>
 </CardGrid>

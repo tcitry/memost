@@ -1,0 +1,4 @@
+# Worker secrets for local dev (server-side / SSR). Copy to .dev.vars (gitignored).
+# In Cloudflare, set with: wrangler secret put <NAME> [--env production]
+
+CLERK_SECRET_KEY=sk_test_xxx

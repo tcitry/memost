@@ -1,0 +1,45 @@
+---
+title: API runtime
+description: Cloudflare runtime, resources, and local commands for the API worker.
+---
+
+The API worker is a Hono service in `apps/api`. It runs on Cloudflare Workers
+with D1 as durable storage and Vectorize for semantic retrieval.
+
+## Scripts
+
+```bash
+pnpm --filter api dev
+pnpm --filter api build
+pnpm --filter api deploy
+pnpm --filter api cf-typegen
+```
+
+Run `cf-typegen` after changing `wrangler.jsonc` so Worker binding types stay in
+sync with Cloudflare resources.
+
+## Cloudflare resources
+
+Create production resources before deploying a real environment:
+
+```bash
+wrangler d1 create memo-st
+wrangler vectorize create memo-st-memory --dimensions 1536 --metric cosine
+```
+
+Then update `apps/api/wrangler.jsonc` with the D1 database ID and apply
+migrations:
+
+```bash
+wrangler d1 migrations apply memo-st --local
+wrangler d1 migrations apply memo-st --remote
+```
+
+## Runtime behavior
+
+- D1 stores memory records and metadata.
+- Vectorize stores embeddings when callers provide `embedding`.
+- `ctx.waitUntil()` is used for Vectorize upserts so the API can acknowledge the
+  durable D1 write quickly.
+- CORS allows `https://memo.st`, `http://localhost:3000`, and
+  `http://localhost:3001`.

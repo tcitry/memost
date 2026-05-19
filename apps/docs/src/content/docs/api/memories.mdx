@@ -1,0 +1,138 @@
+---
+title: Memories API
+description: Request and response reference for memory endpoints.
+---
+
+## Create a memory
+
+```http
+POST /v1/memories
+Content-Type: application/json
+```
+
+```json
+{
+  "organizationId": "org_demo",
+  "subjectId": "customer_acme",
+  "agentId": "support-agent",
+  "namespace": "support",
+  "content": "Acme prefers Slack escalation for P0 incidents.",
+  "metadata": {
+    "source": "ticket-123"
+  },
+  "embedding": [0.012, 0.034, 0.056]
+}
+```
+
+Required fields are `organizationId`, `subjectId`, `agentId`, `namespace`, and
+`content`. `metadata` and `embedding` are optional.
+
+The response returns the created memory:
+
+```json
+{
+  "memory": {
+    "id": "7f9d0d2e-6ad1-4a3b-b608-28cbb76b3f87",
+    "organization_id": "org_demo",
+    "subject_id": "customer_acme",
+    "agent_id": "support-agent",
+    "namespace": "support",
+    "content": "Acme prefers Slack escalation for P0 incidents.",
+    "metadata": {
+      "source": "ticket-123"
+    },
+    "vector_id": "mem_7f9d0d2e-6ad1-4a3b-b608-28cbb76b3f87",
+    "created_at": "2026-05-18T13:00:00.000Z",
+    "updated_at": "2026-05-18T13:00:00.000Z"
+  }
+}
+```
+
+## List memories
+
+```http
+GET /v1/memories?organizationId=org_demo&namespace=support&limit=25
+```
+
+`organizationId` is required. `namespace` and `limit` are optional. Limits are
+capped at 100.
+
+```json
+{
+  "memories": [
+    {
+      "id": "7f9d0d2e-6ad1-4a3b-b608-28cbb76b3f87",
+      "organization_id": "org_demo",
+      "subject_id": "customer_acme",
+      "agent_id": "support-agent",
+      "namespace": "support",
+      "content": "Acme prefers Slack escalation for P0 incidents.",
+      "metadata": {},
+      "vector_id": null,
+      "created_at": "2026-05-18T13:00:00.000Z",
+      "updated_at": "2026-05-18T13:00:00.000Z"
+    }
+  ]
+}
+```
+
+## Get a memory
+
+```http
+GET /v1/memories/:id
+```
+
+Returns `{ "memory": ... }` or a `404` error when the memory does not exist.
+
+## Search memories
+
+```http
+POST /v1/memories/search
+Content-Type: application/json
+```
+
+```json
+{
+  "organizationId": "org_demo",
+  "namespace": "support",
+  "queryEmbedding": [0.012, 0.034, 0.056],
+  "limit": 10
+}
+```
+
+When `queryEmbedding` is present, the API queries Vectorize and hydrates matched
+rows from D1. When `queryEmbedding` is omitted, it falls back to recent D1
+memories for the organization and namespace.
+
+```json
+{
+  "mode": "vectorize",
+  "matches": [
+    {
+      "score": 0.92,
+      "memory": {
+        "id": "7f9d0d2e-6ad1-4a3b-b608-28cbb76b3f87",
+        "organization_id": "org_demo",
+        "subject_id": "customer_acme",
+        "agent_id": "support-agent",
+        "namespace": "support",
+        "content": "Acme prefers Slack escalation for P0 incidents.",
+        "metadata": {},
+        "vector_id": "mem_7f9d0d2e-6ad1-4a3b-b608-28cbb76b3f87",
+        "created_at": "2026-05-18T13:00:00.000Z",
+        "updated_at": "2026-05-18T13:00:00.000Z"
+      }
+    }
+  ]
+}
+```
+
+## Errors
+
+Validation errors return JSON with an `error` field:
+
+```json
+{
+  "error": "organizationId is required"
+}
+```

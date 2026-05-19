@@ -1,0 +1,47 @@
+---
+title: API
+description: Core concepts and setup for the memo.st HTTP API.
+sidebar:
+  order: 1
+  label: Overview
+---
+
+The memo.st API stores durable facts that agents can retrieve across sessions.
+The API worker lives in `apps/api`, runs on Cloudflare Workers, and exposes JSON
+endpoints under `/v1/memories`.
+
+## Memory model
+
+Every memory is scoped by four caller-provided fields:
+
+- `organizationId` isolates tenant data.
+- `subjectId` identifies the user, account, project, or entity the fact is
+  about.
+- `agentId` records which agent created or owns the memory.
+- `namespace` separates use cases such as `support`, `sales`, or `research`.
+
+## Base routes
+
+```text
+GET  /health
+GET  /v1/memories
+POST /v1/memories
+GET  /v1/memories/:id
+POST /v1/memories/search
+```
+
+## First memory
+
+```json
+{
+  "organizationId": "org_demo",
+  "subjectId": "customer_acme",
+  "agentId": "support-agent",
+  "namespace": "support",
+  "content": "Acme prefers Slack escalation for P0 incidents."
+}
+```
+
+Add an `embedding` array when the caller already generated a vector. Without an
+embedding, the API stores the memory in D1 and skips Vectorize indexing for that
+request.

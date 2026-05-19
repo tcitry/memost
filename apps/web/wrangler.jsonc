@@ -1,6 +1,6 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "memo-st-web",
+  "name": "memost-web-dev",
   "main": "@tanstack/react-start/server-entry",
   "compatibility_date": "2026-05-14",
   "compatibility_flags": ["nodejs_compat"],
@@ -11,6 +11,22 @@
     "enabled": true
   },
   "vars": {
-    "MEMOST_ENV": "development"
+    "MEMOST_ENV": "development",
+    "CLERK_PUBLISHABLE_KEY": "pk_test_c2hhcnAtYmlyZC00Ni5jbGVyay5hY2NvdW50cy5kZXYk"
+  },
+  "env": {
+    "production": {
+      "name": "memost-web-prod",
+      "assets": {
+        "directory": "./dist/client"
+      },
+      "observability": {
+        "enabled": true
+      },
+      "vars": {
+        "MEMOST_ENV": "production",
+        "CLERK_PUBLISHABLE_KEY": "pk_live_Y2xlcmsubWVtby5zdCQ"
+      }
+    }
   }
 }

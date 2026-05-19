@@ -1,0 +1,59 @@
+---
+title: Guide
+description: Basic memo.st concepts and how they fit together.
+sidebar:
+  order: 1
+  label: Overview
+---
+
+Memo.st is a memory layer for AI agents. It stores facts that should survive a
+single chat session, then retrieves the right context when an agent needs to act
+again.
+
+## Why memory exists
+
+Agents often repeat work because the useful context from previous sessions is
+trapped in transcripts, tickets, emails, or tool logs. Memo.st turns that context
+into explicit memory records with tenant boundaries, ownership, metadata, and
+retrieval behavior.
+
+## What gets stored
+
+A memory is a durable statement about a subject:
+
+```text
+Acme prefers Slack escalation for P0 incidents.
+```
+
+Memories can represent preferences, facts, events, summaries, decisions,
+constraints, or relationships. They should be short enough to retrieve and
+specific enough for an agent to use without rereading the whole source document.
+
+## How records are scoped
+
+Every memory belongs to an organization and is grouped by subject, agent, and
+namespace.
+
+```text
+organization -> subject -> namespace -> memory
+                         -> agent
+```
+
+This shape keeps retrieval predictable:
+
+- Organization boundaries isolate customer data.
+- Subject IDs identify who or what the memory is about.
+- Agent IDs record which system created or owns the memory.
+- Namespaces separate workflows like support, sales, and research.
+
+## How retrieval works
+
+The API supports two retrieval paths today:
+
+- D1 fallback retrieval returns recent memories for an organization and optional
+  namespace.
+- Vectorize retrieval uses caller-provided query embeddings to find semantically
+  similar memories.
+
+The long-term direction is hybrid retrieval: exact filters, semantic search, and
+graph-aware expansion.

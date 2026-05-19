@@ -1,0 +1,88 @@
+---
+import MobileMenuFooter from "@astrojs/starlight/components/MobileMenuFooter.astro";
+import SidebarSublist from "@astrojs/starlight/components/SidebarSublist.astro";
+
+const { sidebar } = Astro.locals.starlightRoute;
+const pathname = Astro.url.pathname;
+
+const sections = [
+  { label: "Guide", href: "/guide/", icon: "?", match: "/guide/" },
+  { label: "API", href: "/api/", icon: "{}", match: "/api/" },
+  { label: "CLI", href: "/cli/", icon: "$", match: "/cli/" },
+];
+
+const activeSection = sections.find((section) =>
+  pathname === section.match || pathname.startsWith(section.match),
+);
+const activeSidebar = activeSection
+  ? sidebar.filter((entry) => entry.type === "group" && entry.label === activeSection.label)
+  : sidebar;
+---
+
+<div class="section-switcher" aria-label="Documentation section">
+  {
+    sections.map((section) => (
+      <a
+        class:list={{ active: activeSection?.label === section.label }}
+        href={section.href}
+        aria-current={activeSection?.label === section.label ? "page" : undefined}
+      >
+        <span class="section-icon" aria-hidden="true">{section.icon}</span>
+        <span>{section.label}</span>
+      </a>
+    ))
+  }
+</div>
+
+<SidebarSublist sublist={activeSidebar} />
+
+<div class="md:sl-hidden">
+  <MobileMenuFooter />
+</div>
+
+<style>
+  .section-switcher {
+    display: grid;
+    gap: 0.35rem;
+    margin-bottom: 1.25rem;
+    border: 1px solid color-mix(in srgb, var(--sl-color-gray-5), transparent 35%);
+    border-radius: 0.75rem;
+    background: color-mix(in srgb, var(--sl-color-gray-7), var(--sl-color-gray-6) 35%);
+    padding: 0.35rem;
+  }
+
+  .section-switcher a {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    border-radius: 0.55rem;
+    padding: 0.65rem 0.75rem;
+    color: var(--sl-color-gray-2);
+    font-size: var(--sl-text-base);
+    font-weight: 600;
+    line-height: 1.2;
+    text-decoration: none;
+  }
+
+  .section-switcher a:hover,
+  .section-switcher a:focus-visible {
+    color: var(--sl-color-white);
+  }
+
+  .section-switcher a.active {
+    color: var(--sl-color-white);
+    background: var(--sl-color-bg);
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--sl-color-gray-5), transparent 25%);
+  }
+
+  .section-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.5rem;
+    color: var(--sl-color-accent-high);
+    font-family: var(--__sl-font-mono);
+    font-size: 0.9rem;
+    font-weight: 700;
+  }
+</style>

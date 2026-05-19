@@ -3,3 +3,12 @@
 @import "@astrojs/starlight-tailwind";
 @import "tailwindcss/theme.css" layer(theme);
 @import "tailwindcss/utilities.css" layer(utilities);
+
+@layer starlight {
+  @media (min-width: 72rem) {
+    .right-sidebar-panel .sl-container {
+      margin-inline-start: 0;
+      max-width: calc(var(--sl-sidebar-width) - 2 * var(--sl-sidebar-pad-x));
+    }
+  }
+}

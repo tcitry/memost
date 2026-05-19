@@ -6,10 +6,10 @@ uses D1 for durable metadata plus Vectorize for semantic retrieval.
 ## Scripts
 
 ```bash
-pnpm --filter @memost/api-worker dev
-pnpm --filter @memost/api-worker build
-pnpm --filter @memost/api-worker deploy
-pnpm --filter @memost/api-worker cf-typegen
+pnpm --filter api dev
+pnpm --filter api build
+pnpm --filter api deploy
+pnpm --filter api cf-typegen
 ```
 
 ## Cloudflare Resources

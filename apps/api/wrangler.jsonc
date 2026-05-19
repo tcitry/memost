@@ -1,6 +1,6 @@
 {
   "$schema": "../../node_modules/wrangler/config-schema.json",
-  "name": "memo-st-api",
+  "name": "memost-api-dev",
   "main": "src/index.ts",
   "compatibility_date": "2026-05-14",
   "compatibility_flags": ["nodejs_compat"],
@@ -10,21 +10,51 @@
   },
   "vars": {
     "MEMOST_ENV": "development",
-    "VECTOR_DIMENSIONS": "1536"
+    "VECTOR_DIMENSIONS": "1536",
+    "CLERK_PUBLISHABLE_KEY": "pk_test_c2hhcnAtYmlyZC00Ni5jbGVyay5hY2NvdW50cy5kZXYk"
   },
   "d1_databases": [
     {
       "binding": "DB",
-      "database_name": "memo-st",
-      "database_id": "00000000-0000-0000-0000-000000000000",
+      "database_name": "memost-db-dev",
+      "database_id": "04c61e32-2e5f-4e93-9458-0c921eb1c92f",
       "migrations_dir": "migrations"
     }
   ],
   "vectorize": [
     {
       "binding": "MEMORY_INDEX",
-      "index_name": "memo-st-memory",
+      "index_name": "memost-vector-dev",
       "remote": true
     }
-  ]
+  ],
+  "env": {
+    "production": {
+      "name": "memost-api-prod",
+      "observability": {
+        "enabled": true,
+        "head_sampling_rate": 1
+      },
+      "vars": {
+        "MEMOST_ENV": "production",
+        "VECTOR_DIMENSIONS": "1536",
+        "CLERK_PUBLISHABLE_KEY": "pk_live_Y2xlcmsubWVtby5zdCQ"
+      },
+      "d1_databases": [
+        {
+          "binding": "DB",
+          "database_name": "memost-db-prod",
+          "database_id": "7e536830-1033-4ac5-ad60-6cbc3eaa4bcc",
+          "migrations_dir": "migrations"
+        }
+      ],
+      "vectorize": [
+        {
+          "binding": "MEMORY_INDEX",
+          "index_name": "memost-vector-prod",
+          "remote": true
+        }
+      ]
+    }
+  }
 }

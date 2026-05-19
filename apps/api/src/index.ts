@@ -1,5 +1,6 @@
 import { Hono } from "hono";
 import { cors } from "hono/cors";
+import { clerkMiddleware, getAuth } from "@hono/clerk-auth";
 import {
   createMemory,
   getLimit,
@@ -12,6 +13,8 @@ import type { CreateMemoryInput, SearchMemoryInput } from "./types";
 
 const app = new Hono<{ Bindings: Env }>();
 
+app.use("*", clerkMiddleware());
+
 app.use(
   "*",
   cors({
@@ -21,6 +24,16 @@ app.use(
     maxAge: 86400,
   }),
 );
+
+app.use("*", async (c, next) => {
+  const auth = getAuth(c);
+
+  if (!auth?.userId) {
+    return c.json({ error: "Unauthorized" }, 401);
+  }
+
+  await next();
+});
 
 app.get("/health", (c) =>
   c.json({

@@ -1,0 +1,22 @@
+{
+  "$schema": "../../node_modules/wrangler/config-schema.json",
+  "name": "memost-docs",
+  "pages_build_output_dir": "./dist",
+  "compatibility_date": "2026-05-14",
+  "observability": {
+    "enabled": true
+  },
+  "vars": {
+    "MEMOST_ENV": "development"
+  },
+  "env": {
+    "production": {
+      "observability": {
+        "enabled": true
+      },
+      "vars": {
+        "MEMOST_ENV": "production"
+      }
+    }
+  }
+}

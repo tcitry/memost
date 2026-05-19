@@ -7,6 +7,8 @@
     "dev": "astro dev --host 0.0.0.0 --port 3002",
     "build": "astro build",
     "start": "astro preview --host 0.0.0.0 --port 3002",
+    "deploy": "pnpm build && WRANGLER_LOG_PATH=.wrangler/logs wrangler pages deploy",
+    "deploy:prod": "pnpm build && WRANGLER_LOG_PATH=.wrangler/logs wrangler pages deploy",
     "lint": "eslint --max-warnings 0",
     "check-types": "astro check && tsc --noEmit"
   },
@@ -25,6 +27,7 @@
     "@repo/typescript-config": "workspace:*",
     "@types/node": "^22.15.3",
     "eslint": "^9.39.1",
-    "typescript": "5.9.2"
+    "typescript": "5.9.2",
+    "wrangler": "^4.90.1"
   }
 }

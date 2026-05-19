@@ -1,0 +1,44 @@
+---
+title: Core concepts
+description: The key nouns used across memo.st API and CLI docs.
+sidebar:
+  order: 2
+---
+
+## Organization
+
+An organization is the tenant boundary. API requests include `organizationId` so
+memory reads and writes stay scoped to the correct customer or workspace.
+
+## Subject
+
+A subject is the person, account, project, document, or entity the memory is
+about. Use stable IDs such as `customer_acme`, `user_123`, or `project_delta`.
+
+## Agent
+
+An agent is the system that creates, owns, or primarily uses a memory. Recording
+`agentId` makes it possible to audit where a memory came from and filter
+retrieval by workflow.
+
+## Namespace
+
+A namespace separates memory use cases inside the same organization. Common
+examples include `support`, `sales`, `research`, and `product`.
+
+## Memory
+
+A memory is the durable record stored in D1. It includes content, metadata, and
+timestamps. If the caller provides an embedding, the API also indexes it in
+Vectorize.
+
+## Metadata
+
+Metadata is caller-defined JSON. Use it for source IDs, confidence, document
+references, ticket IDs, or other filters that should travel with the memory.
+
+## Embedding
+
+An embedding is a numeric vector representation of memory content or a search
+query. Memo.st accepts caller-provided embeddings today; generated embeddings can
+be added later through Workers AI or provider adapters.

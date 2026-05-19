@@ -1,0 +1,50 @@
+---
+title: CLI commands
+description: Current command reference for the memost CLI.
+---
+
+## Global help
+
+```bash
+memost --help
+```
+
+Current output:
+
+```text
+Usage: memost [options] [command]
+
+Command line tools for Memost.
+
+Options:
+  -V, --version   output the version number
+  -h, --help      display help for command
+
+Commands:
+  hello           Print a test message from the Memost CLI.
+  help [command]  display help for command
+```
+
+## Version
+
+```bash
+memost --version
+```
+
+The current CLI version is `0.1.0`.
+
+## hello
+
+```bash
+memost hello
+```
+
+Prints:
+
+```text
+Hello from Memost CLI.
+```
+
+This command is a smoke test for the Commander.js wiring. Future commands should
+replace it with real workflows such as API authentication, memory import, and
+deployment checks.

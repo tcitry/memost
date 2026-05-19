@@ -1,0 +1,49 @@
+---
+title: CLI
+description: What the memost CLI package provides today.
+sidebar:
+  order: 1
+  label: Overview
+---
+
+The memo.st CLI lives in `apps/cli` and publishes the `memost` executable from
+the compiled `dist/index.js` entrypoint.
+
+The package is currently an initialized Commander.js scaffold. It gives the
+repo a typed CLI surface that can grow into API automation, project setup, and
+operational commands.
+
+## Package
+
+```json
+{
+  "name": "cli",
+  "bin": {
+    "memost": "./dist/index.js"
+  }
+}
+```
+
+## Requirements
+
+The repository targets Node.js 20 or newer.
+
+```bash
+node --version
+pnpm --version
+```
+
+## Local usage
+
+Run the source entrypoint during development:
+
+```bash
+pnpm --filter cli dev --help
+```
+
+Build and run the compiled output:
+
+```bash
+pnpm --filter cli build
+node apps/cli/dist/index.js --help
+```

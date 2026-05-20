@@ -11,7 +11,13 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as DashboardIndexRouteImport } from './routes/dashboard.index'
+import { Route as DashboardPlaygroundRouteImport } from './routes/dashboard.playground'
+import { Route as DashboardAgentsRouteImport } from './routes/dashboard.agents'
+import { Route as ApiPlaygroundRouteImport } from './routes/api.playground'
 import { Route as ApiMemoriesRouteImport } from './routes/api.memories'
+import { Route as ApiAgentsRouteImport } from './routes/api.agents'
+import { Route as ApiAgentsIdKeysRouteImport } from './routes/api.agents.$id.keys'
 
 const DashboardRoute = DashboardRouteImport.update({
   id: '/dashboard',
@@ -23,40 +29,116 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DashboardIndexRoute = DashboardIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => DashboardRoute,
+} as any)
+const DashboardPlaygroundRoute = DashboardPlaygroundRouteImport.update({
+  id: '/playground',
+  path: '/playground',
+  getParentRoute: () => DashboardRoute,
+} as any)
+const DashboardAgentsRoute = DashboardAgentsRouteImport.update({
+  id: '/agents',
+  path: '/agents',
+  getParentRoute: () => DashboardRoute,
+} as any)
+const ApiPlaygroundRoute = ApiPlaygroundRouteImport.update({
+  id: '/api/playground',
+  path: '/api/playground',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiMemoriesRoute = ApiMemoriesRouteImport.update({
   id: '/api/memories',
   path: '/api/memories',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiAgentsRoute = ApiAgentsRouteImport.update({
+  id: '/api/agents',
+  path: '/api/agents',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiAgentsIdKeysRoute = ApiAgentsIdKeysRouteImport.update({
+  id: '/$id/keys',
+  path: '/$id/keys',
+  getParentRoute: () => ApiAgentsRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/dashboard': typeof DashboardRoute
+  '/dashboard': typeof DashboardRouteWithChildren
+  '/api/agents': typeof ApiAgentsRouteWithChildren
   '/api/memories': typeof ApiMemoriesRoute
+  '/api/playground': typeof ApiPlaygroundRoute
+  '/dashboard/agents': typeof DashboardAgentsRoute
+  '/dashboard/playground': typeof DashboardPlaygroundRoute
+  '/dashboard/': typeof DashboardIndexRoute
+  '/api/agents/$id/keys': typeof ApiAgentsIdKeysRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/dashboard': typeof DashboardRoute
+  '/api/agents': typeof ApiAgentsRouteWithChildren
   '/api/memories': typeof ApiMemoriesRoute
+  '/api/playground': typeof ApiPlaygroundRoute
+  '/dashboard/agents': typeof DashboardAgentsRoute
+  '/dashboard/playground': typeof DashboardPlaygroundRoute
+  '/dashboard': typeof DashboardIndexRoute
+  '/api/agents/$id/keys': typeof ApiAgentsIdKeysRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/dashboard': typeof DashboardRoute
+  '/dashboard': typeof DashboardRouteWithChildren
+  '/api/agents': typeof ApiAgentsRouteWithChildren
   '/api/memories': typeof ApiMemoriesRoute
+  '/api/playground': typeof ApiPlaygroundRoute
+  '/dashboard/agents': typeof DashboardAgentsRoute
+  '/dashboard/playground': typeof DashboardPlaygroundRoute
+  '/dashboard/': typeof DashboardIndexRoute
+  '/api/agents/$id/keys': typeof ApiAgentsIdKeysRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/dashboard' | '/api/memories'
+  fullPaths:
+    | '/'
+    | '/dashboard'
+    | '/api/agents'
+    | '/api/memories'
+    | '/api/playground'
+    | '/dashboard/agents'
+    | '/dashboard/playground'
+    | '/dashboard/'
+    | '/api/agents/$id/keys'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/dashboard' | '/api/memories'
-  id: '__root__' | '/' | '/dashboard' | '/api/memories'
+  to:
+    | '/'
+    | '/api/agents'
+    | '/api/memories'
+    | '/api/playground'
+    | '/dashboard/agents'
+    | '/dashboard/playground'
+    | '/dashboard'
+    | '/api/agents/$id/keys'
+  id:
+    | '__root__'
+    | '/'
+    | '/dashboard'
+    | '/api/agents'
+    | '/api/memories'
+    | '/api/playground'
+    | '/dashboard/agents'
+    | '/dashboard/playground'
+    | '/dashboard/'
+    | '/api/agents/$id/keys'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  DashboardRoute: typeof DashboardRoute
+  DashboardRoute: typeof DashboardRouteWithChildren
+  ApiAgentsRoute: typeof ApiAgentsRouteWithChildren
   ApiMemoriesRoute: typeof ApiMemoriesRoute
+  ApiPlaygroundRoute: typeof ApiPlaygroundRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -75,6 +157,34 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/dashboard/': {
+      id: '/dashboard/'
+      path: '/'
+      fullPath: '/dashboard/'
+      preLoaderRoute: typeof DashboardIndexRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/dashboard/playground': {
+      id: '/dashboard/playground'
+      path: '/playground'
+      fullPath: '/dashboard/playground'
+      preLoaderRoute: typeof DashboardPlaygroundRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/dashboard/agents': {
+      id: '/dashboard/agents'
+      path: '/agents'
+      fullPath: '/dashboard/agents'
+      preLoaderRoute: typeof DashboardAgentsRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/api/playground': {
+      id: '/api/playground'
+      path: '/api/playground'
+      fullPath: '/api/playground'
+      preLoaderRoute: typeof ApiPlaygroundRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/memories': {
       id: '/api/memories'
       path: '/api/memories'
@@ -82,13 +192,57 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiMemoriesRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/agents': {
+      id: '/api/agents'
+      path: '/api/agents'
+      fullPath: '/api/agents'
+      preLoaderRoute: typeof ApiAgentsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/agents/$id/keys': {
+      id: '/api/agents/$id/keys'
+      path: '/$id/keys'
+      fullPath: '/api/agents/$id/keys'
+      preLoaderRoute: typeof ApiAgentsIdKeysRouteImport
+      parentRoute: typeof ApiAgentsRoute
+    }
   }
 }
 
+interface DashboardRouteChildren {
+  DashboardAgentsRoute: typeof DashboardAgentsRoute
+  DashboardPlaygroundRoute: typeof DashboardPlaygroundRoute
+  DashboardIndexRoute: typeof DashboardIndexRoute
+}
+
+const DashboardRouteChildren: DashboardRouteChildren = {
+  DashboardAgentsRoute: DashboardAgentsRoute,
+  DashboardPlaygroundRoute: DashboardPlaygroundRoute,
+  DashboardIndexRoute: DashboardIndexRoute,
+}
+
+const DashboardRouteWithChildren = DashboardRoute._addFileChildren(
+  DashboardRouteChildren,
+)
+
+interface ApiAgentsRouteChildren {
+  ApiAgentsIdKeysRoute: typeof ApiAgentsIdKeysRoute
+}
+
+const ApiAgentsRouteChildren: ApiAgentsRouteChildren = {
+  ApiAgentsIdKeysRoute: ApiAgentsIdKeysRoute,
+}
+
+const ApiAgentsRouteWithChildren = ApiAgentsRoute._addFileChildren(
+  ApiAgentsRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  DashboardRoute: DashboardRoute,
+  DashboardRoute: DashboardRouteWithChildren,
+  ApiAgentsRoute: ApiAgentsRouteWithChildren,
   ApiMemoriesRoute: ApiMemoriesRoute,
+  ApiPlaygroundRoute: ApiPlaygroundRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

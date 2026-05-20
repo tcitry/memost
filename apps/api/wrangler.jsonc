@@ -10,7 +10,9 @@
   },
   "vars": {
     "MEMOST_ENV": "development",
-    "VECTOR_DIMENSIONS": "1536",
+    "VECTOR_DIMENSIONS": "1024",
+    "EMBEDDING_MODEL": "@cf/baai/bge-large-en-v1.5",
+    "KG_LLM_MODEL": "@cf/meta/llama-3.1-8b-instruct",
     "CLERK_PUBLISHABLE_KEY": "pk_test_c2hhcnAtYmlyZC00Ni5jbGVyay5hY2NvdW50cy5kZXYk"
   },
   "d1_databases": [
@@ -28,6 +30,9 @@
       "remote": true
     }
   ],
+  "ai": {
+    "binding": "AI"
+  },
   "env": {
     "production": {
       "name": "memost-api-prod",
@@ -37,7 +42,9 @@
       },
       "vars": {
         "MEMOST_ENV": "production",
-        "VECTOR_DIMENSIONS": "1536",
+        "VECTOR_DIMENSIONS": "1024",
+        "EMBEDDING_MODEL": "@cf/baai/bge-large-en-v1.5",
+        "KG_LLM_MODEL": "@cf/meta/llama-3.1-8b-instruct",
         "CLERK_PUBLISHABLE_KEY": "pk_live_Y2xlcmsubWVtby5zdCQ"
       },
       "d1_databases": [
@@ -54,7 +61,10 @@
           "index_name": "memost-vector-prod",
           "remote": true
         }
-      ]
+      ],
+      "ai": {
+        "binding": "AI"
+      }
     }
   }
 }

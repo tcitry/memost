@@ -42,7 +42,12 @@ function DashboardOverview() {
               Send memory add and search requests against a live agent.
             </p>
             <div className="mt-4">
-              <Button variant="outline" render={<Link to="/dashboard/playground" />}>
+              <Button
+                variant="outline"
+                render={
+                  <Link to="/dashboard/playground" search={{ agent: undefined }} />
+                }
+              >
                 Open playground
               </Button>
             </div>

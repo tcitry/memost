@@ -10,6 +10,9 @@ import type {
 } from "../lib/types";
 
 export const Route = createFileRoute("/dashboard/playground")({
+  validateSearch: (search: Record<string, unknown>) => ({
+    agent: typeof search.agent === "string" ? search.agent : undefined,
+  }),
   component: PlaygroundPage,
 });
 
@@ -30,6 +33,7 @@ const labelCls =
   "block text-xs font-semibold uppercase tracking-wide text-[#3b7055] mb-1";
 
 function PlaygroundPage() {
+  const { agent: agentFromUrl } = Route.useSearch();
   const [agents, setAgents] = useState<Agent[]>([]);
   const [agentId, setAgentId] = useState<string>("");
   const [pid, setPid] = useState<string>("");
@@ -49,15 +53,20 @@ function PlaygroundPage() {
         if (!res.ok) throw new Error(json.error ?? "Failed to load agents");
         const list = json.agents ?? [];
         setAgents(list);
-        if (list.length > 0 && list[0]) {
-          setAgentId(list[0].id);
-          setPid(list[0].default_pid);
+        if (list.length > 0) {
+          const pick =
+            (agentFromUrl && list.find((a) => a.id === agentFromUrl)) ||
+            list[0];
+          if (pick) {
+            setAgentId(pick.id);
+            setPid(pick.default_pid);
+          }
         }
       } catch (err) {
         setError(err instanceof Error ? err.message : String(err));
       }
     })();
-  }, []);
+  }, [agentFromUrl]);
 
   const selectedAgent = useMemo(
     () => agents.find((a) => a.id === agentId) ?? null,

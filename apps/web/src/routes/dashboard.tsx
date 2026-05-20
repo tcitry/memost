@@ -4,9 +4,14 @@ import {
   createFileRoute,
   redirect,
 } from "@tanstack/react-router";
-import { UserButton } from "@clerk/tanstack-react-start";
+import { SignOutButton, UserButton } from "@clerk/tanstack-react-start";
 import { auth } from "@clerk/tanstack-react-start/server";
-import { LayoutDashboard, Bot, FlaskConical } from "lucide-react";
+import {
+  LayoutDashboard,
+  LogOut,
+  Bot,
+  FlaskConical,
+} from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -102,8 +107,17 @@ function DashboardLayout() {
             </SidebarContent>
             <SidebarSeparator />
             <SidebarFooter>
-              <div className="flex items-center justify-between gap-3">
-                <UserButton />
+              <div className="flex flex-col gap-1">
+                <SignOutButton redirectUrl="/">
+                  <SidebarMenu>
+                    <SidebarMenuItem>
+                      <SidebarMenuButton className="rounded-lg text-sm">
+                        <LogOut />
+                        <span>Sign out</span>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  </SidebarMenu>
+                </SignOutButton>
               </div>
             </SidebarFooter>
           </Sidebar>
@@ -120,6 +134,9 @@ function DashboardLayout() {
                 </span>
                 <span>Memo.st</span>
               </Link>
+              <div className="ml-auto hidden items-center gap-3 md:flex">
+                <UserButton />
+              </div>
             </header>
             <Outlet />
           </SidebarInset>

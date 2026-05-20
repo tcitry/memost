@@ -9,9 +9,12 @@ sidebar:
 The memo.st CLI lives in `apps/cli` and publishes the `memost` executable from
 the compiled `dist/index.js` entrypoint.
 
-The package is currently an initialized Commander.js scaffold. It gives the
-repo a typed CLI surface that can grow into API automation, project setup, and
-operational commands.
+The CLI supports **Clerk browser login** (`memost login`), **Agent / API key
+management**, and **memory add / search / list** against the API worker. See
+[CLI commands](/docs/cli/commands) for the full reference.
+
+Memory scope hierarchy: **Agent** → **pid** (process) → **tid** (thread,
+optional), matching the D1 schema and dashboard.
 
 ## Package
 

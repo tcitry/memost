@@ -14,10 +14,13 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as DashboardIndexRouteImport } from './routes/dashboard.index'
 import { Route as DashboardPlaygroundRouteImport } from './routes/dashboard.playground'
 import { Route as DashboardAgentsRouteImport } from './routes/dashboard.agents'
+import { Route as CliLoginRouteImport } from './routes/cli.login'
 import { Route as ApiPlaygroundRouteImport } from './routes/api.playground'
 import { Route as ApiMemoriesRouteImport } from './routes/api.memories'
 import { Route as ApiAgentsRouteImport } from './routes/api.agents'
+import { Route as ApiAgentsIdRouteImport } from './routes/api.agents.$id'
 import { Route as ApiAgentsIdKeysRouteImport } from './routes/api.agents.$id.keys'
+import { Route as ApiAgentsIdKeysKeyIdRouteImport } from './routes/api.agents.$id.keys.$keyId'
 
 const DashboardRoute = DashboardRouteImport.update({
   id: '/dashboard',
@@ -44,6 +47,11 @@ const DashboardAgentsRoute = DashboardAgentsRouteImport.update({
   path: '/agents',
   getParentRoute: () => DashboardRoute,
 } as any)
+const CliLoginRoute = CliLoginRouteImport.update({
+  id: '/cli/login',
+  path: '/cli/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPlaygroundRoute = ApiPlaygroundRouteImport.update({
   id: '/api/playground',
   path: '/api/playground',
@@ -59,10 +67,20 @@ const ApiAgentsRoute = ApiAgentsRouteImport.update({
   path: '/api/agents',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ApiAgentsIdKeysRoute = ApiAgentsIdKeysRouteImport.update({
-  id: '/$id/keys',
-  path: '/$id/keys',
+const ApiAgentsIdRoute = ApiAgentsIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
   getParentRoute: () => ApiAgentsRoute,
+} as any)
+const ApiAgentsIdKeysRoute = ApiAgentsIdKeysRouteImport.update({
+  id: '/keys',
+  path: '/keys',
+  getParentRoute: () => ApiAgentsIdRoute,
+} as any)
+const ApiAgentsIdKeysKeyIdRoute = ApiAgentsIdKeysKeyIdRouteImport.update({
+  id: '/$keyId',
+  path: '/$keyId',
+  getParentRoute: () => ApiAgentsIdKeysRoute,
 } as any)
 
 export interface FileRoutesByFullPath {
@@ -71,20 +89,26 @@ export interface FileRoutesByFullPath {
   '/api/agents': typeof ApiAgentsRouteWithChildren
   '/api/memories': typeof ApiMemoriesRoute
   '/api/playground': typeof ApiPlaygroundRoute
+  '/cli/login': typeof CliLoginRoute
   '/dashboard/agents': typeof DashboardAgentsRoute
   '/dashboard/playground': typeof DashboardPlaygroundRoute
   '/dashboard/': typeof DashboardIndexRoute
-  '/api/agents/$id/keys': typeof ApiAgentsIdKeysRoute
+  '/api/agents/$id': typeof ApiAgentsIdRouteWithChildren
+  '/api/agents/$id/keys': typeof ApiAgentsIdKeysRouteWithChildren
+  '/api/agents/$id/keys/$keyId': typeof ApiAgentsIdKeysKeyIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/api/agents': typeof ApiAgentsRouteWithChildren
   '/api/memories': typeof ApiMemoriesRoute
   '/api/playground': typeof ApiPlaygroundRoute
+  '/cli/login': typeof CliLoginRoute
   '/dashboard/agents': typeof DashboardAgentsRoute
   '/dashboard/playground': typeof DashboardPlaygroundRoute
   '/dashboard': typeof DashboardIndexRoute
-  '/api/agents/$id/keys': typeof ApiAgentsIdKeysRoute
+  '/api/agents/$id': typeof ApiAgentsIdRouteWithChildren
+  '/api/agents/$id/keys': typeof ApiAgentsIdKeysRouteWithChildren
+  '/api/agents/$id/keys/$keyId': typeof ApiAgentsIdKeysKeyIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -93,10 +117,13 @@ export interface FileRoutesById {
   '/api/agents': typeof ApiAgentsRouteWithChildren
   '/api/memories': typeof ApiMemoriesRoute
   '/api/playground': typeof ApiPlaygroundRoute
+  '/cli/login': typeof CliLoginRoute
   '/dashboard/agents': typeof DashboardAgentsRoute
   '/dashboard/playground': typeof DashboardPlaygroundRoute
   '/dashboard/': typeof DashboardIndexRoute
-  '/api/agents/$id/keys': typeof ApiAgentsIdKeysRoute
+  '/api/agents/$id': typeof ApiAgentsIdRouteWithChildren
+  '/api/agents/$id/keys': typeof ApiAgentsIdKeysRouteWithChildren
+  '/api/agents/$id/keys/$keyId': typeof ApiAgentsIdKeysKeyIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -106,20 +133,26 @@ export interface FileRouteTypes {
     | '/api/agents'
     | '/api/memories'
     | '/api/playground'
+    | '/cli/login'
     | '/dashboard/agents'
     | '/dashboard/playground'
     | '/dashboard/'
+    | '/api/agents/$id'
     | '/api/agents/$id/keys'
+    | '/api/agents/$id/keys/$keyId'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/api/agents'
     | '/api/memories'
     | '/api/playground'
+    | '/cli/login'
     | '/dashboard/agents'
     | '/dashboard/playground'
     | '/dashboard'
+    | '/api/agents/$id'
     | '/api/agents/$id/keys'
+    | '/api/agents/$id/keys/$keyId'
   id:
     | '__root__'
     | '/'
@@ -127,10 +160,13 @@ export interface FileRouteTypes {
     | '/api/agents'
     | '/api/memories'
     | '/api/playground'
+    | '/cli/login'
     | '/dashboard/agents'
     | '/dashboard/playground'
     | '/dashboard/'
+    | '/api/agents/$id'
     | '/api/agents/$id/keys'
+    | '/api/agents/$id/keys/$keyId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -139,6 +175,7 @@ export interface RootRouteChildren {
   ApiAgentsRoute: typeof ApiAgentsRouteWithChildren
   ApiMemoriesRoute: typeof ApiMemoriesRoute
   ApiPlaygroundRoute: typeof ApiPlaygroundRoute
+  CliLoginRoute: typeof CliLoginRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -178,6 +215,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardAgentsRouteImport
       parentRoute: typeof DashboardRoute
     }
+    '/cli/login': {
+      id: '/cli/login'
+      path: '/cli/login'
+      fullPath: '/cli/login'
+      preLoaderRoute: typeof CliLoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/playground': {
       id: '/api/playground'
       path: '/api/playground'
@@ -199,12 +243,26 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiAgentsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/agents/$id': {
+      id: '/api/agents/$id'
+      path: '/$id'
+      fullPath: '/api/agents/$id'
+      preLoaderRoute: typeof ApiAgentsIdRouteImport
+      parentRoute: typeof ApiAgentsRoute
+    }
     '/api/agents/$id/keys': {
       id: '/api/agents/$id/keys'
-      path: '/$id/keys'
+      path: '/keys'
       fullPath: '/api/agents/$id/keys'
       preLoaderRoute: typeof ApiAgentsIdKeysRouteImport
-      parentRoute: typeof ApiAgentsRoute
+      parentRoute: typeof ApiAgentsIdRoute
+    }
+    '/api/agents/$id/keys/$keyId': {
+      id: '/api/agents/$id/keys/$keyId'
+      path: '/$keyId'
+      fullPath: '/api/agents/$id/keys/$keyId'
+      preLoaderRoute: typeof ApiAgentsIdKeysKeyIdRouteImport
+      parentRoute: typeof ApiAgentsIdKeysRoute
     }
   }
 }
@@ -225,12 +283,36 @@ const DashboardRouteWithChildren = DashboardRoute._addFileChildren(
   DashboardRouteChildren,
 )
 
+interface ApiAgentsIdKeysRouteChildren {
+  ApiAgentsIdKeysKeyIdRoute: typeof ApiAgentsIdKeysKeyIdRoute
+}
+
+const ApiAgentsIdKeysRouteChildren: ApiAgentsIdKeysRouteChildren = {
+  ApiAgentsIdKeysKeyIdRoute: ApiAgentsIdKeysKeyIdRoute,
+}
+
+const ApiAgentsIdKeysRouteWithChildren = ApiAgentsIdKeysRoute._addFileChildren(
+  ApiAgentsIdKeysRouteChildren,
+)
+
+interface ApiAgentsIdRouteChildren {
+  ApiAgentsIdKeysRoute: typeof ApiAgentsIdKeysRouteWithChildren
+}
+
+const ApiAgentsIdRouteChildren: ApiAgentsIdRouteChildren = {
+  ApiAgentsIdKeysRoute: ApiAgentsIdKeysRouteWithChildren,
+}
+
+const ApiAgentsIdRouteWithChildren = ApiAgentsIdRoute._addFileChildren(
+  ApiAgentsIdRouteChildren,
+)
+
 interface ApiAgentsRouteChildren {
-  ApiAgentsIdKeysRoute: typeof ApiAgentsIdKeysRoute
+  ApiAgentsIdRoute: typeof ApiAgentsIdRouteWithChildren
 }
 
 const ApiAgentsRouteChildren: ApiAgentsRouteChildren = {
-  ApiAgentsIdKeysRoute: ApiAgentsIdKeysRoute,
+  ApiAgentsIdRoute: ApiAgentsIdRouteWithChildren,
 }
 
 const ApiAgentsRouteWithChildren = ApiAgentsRoute._addFileChildren(
@@ -243,6 +325,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiAgentsRoute: ApiAgentsRouteWithChildren,
   ApiMemoriesRoute: ApiMemoriesRoute,
   ApiPlaygroundRoute: ApiPlaygroundRoute,
+  CliLoginRoute: CliLoginRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

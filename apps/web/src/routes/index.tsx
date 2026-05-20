@@ -80,7 +80,7 @@ function Home() {
       </header>
 
       <main className="px-[clamp(20px,4vw,56px)] pb-10 pt-[clamp(42px,7vw,96px)]">
-        <section className="grid items-center gap-[clamp(28px,5vw,72px)] lg:grid-cols-[minmax(0,1fr)_minmax(360px,0.86fr)]">
+        <section className="mx-auto grid max-w-[1320px] items-center gap-[clamp(24px,4vw,48px)] lg:grid-cols-[minmax(0,1.08fr)_minmax(0,0.92fr)]">
           <div className="max-w-[760px]">
             <p className="mb-[18px] text-sm font-extrabold uppercase tracking-[0.08em] text-[#3b7055]">
               Agent memory SaaS on Cloudflare Workers

@@ -1,6 +1,6 @@
 # memo.st web
 
-TanStack Start app for the memo.st Agent memory SaaS surface. It runs on
+TanStack Start app for the memo.st agent memory SaaS surface. It runs on
 Cloudflare Workers and uses Clerk for user and organization authentication.
 
 ## Getting Started
@@ -11,7 +11,7 @@ Install dependencies from the repository root:
 pnpm dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000) in your browser to see the result.
 
 Useful package scripts:
 

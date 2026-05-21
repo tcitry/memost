@@ -123,7 +123,7 @@ function AgentsPage() {
   async function onDeleteAgent(agent: Agent) {
     if (
       !window.confirm(
-        `删除 Agent「${agent.name}」？其记忆、图谱与 API Key 将一并删除。`,
+        `Delete Agent "${agent.name}"? Its memories, graph data, and API keys will also be deleted.`,
       )
     ) {
       return;
@@ -178,7 +178,7 @@ function AgentsPage() {
 
   async function onRevokeKey(key: ApiKey) {
     if (!selectedId) return;
-    if (!window.confirm(`吊销 Key「${key.name}」（${key.prefix}…）？`)) return;
+    if (!window.confirm(`Revoke key "${key.name}" (${key.prefix}...)?`)) return;
     setKeysBusy(true);
     setError(null);
     try {
@@ -203,16 +203,16 @@ function AgentsPage() {
           Agents
         </p>
         <h1 className="text-3xl font-semibold leading-[0.98] text-[#132018] md:text-4xl">
-          Agent 管理
+          Agent management
         </h1>
         <p className="mt-4 max-w-[720px] text-base leading-[1.55] text-[#415548]">
-          组织记忆按三层作用域划分：
+          Memory is organized into three scope levels:
           <strong className="font-semibold text-[#132018]"> Agent</strong>
-          （最大单位）→
+          (top-level unit) →
           <strong className="font-semibold text-[#132018]"> pid</strong>
-          （process / project）→
+          (process / project) →
           <strong className="font-semibold text-[#132018]"> tid</strong>
-          （thread / 会话，可选）。每条记忆与图谱三元组都挂在该层级下。
+          (thread / session, optional). Every memory and graph triple belongs to that hierarchy.
         </p>
         <div className="mt-4 rounded-lg border border-[rgba(31,57,42,0.12)] bg-[rgba(255,254,249,0.65)] px-4 py-3 font-mono text-xs text-[#415548]">
           organization → agent_id → pid → tid?
@@ -229,13 +229,13 @@ function AgentsPage() {
         <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)]">
           <div>
             <h2 className="mb-4 text-lg font-semibold text-[#132018]">
-              Agent 列表
+              Agent list
             </h2>
             {agents === null ? (
-              <p className="text-sm text-[#54665a]">加载中…</p>
+              <p className="text-sm text-[#54665a]">Loading...</p>
             ) : agents.length === 0 ? (
               <p className="text-sm text-[#54665a]">
-                尚无 Agent，请在右侧创建。
+                No agents yet. Create one on the right.
               </p>
             ) : (
               <ul className="grid gap-2">
@@ -264,7 +264,7 @@ function AgentsPage() {
                         </p>
                       ) : null}
                       <p className="mt-2 text-xs text-[#54665a]">
-                        默认 pid: {agent.default_pid}
+                        Default pid: {agent.default_pid}
                       </p>
                     </button>
                   </li>
@@ -275,11 +275,11 @@ function AgentsPage() {
 
           <div>
             <h2 className="mb-4 text-lg font-semibold text-[#132018]">
-              {selected ? selected.name : "选择 Agent"}
+              {selected ? selected.name : "Select an agent"}
             </h2>
             {!selected ? (
               <p className="text-sm text-[#54665a]">
-                从左侧选择一个 Agent 以管理 API Key。
+                Select an agent on the left to manage API keys.
               </p>
             ) : (
               <div className="rounded-xl border border-[rgba(31,57,42,0.14)] bg-[rgba(255,254,249,0.78)] p-4 shadow-[0_18px_50px_rgba(18,35,25,0.06)] backdrop-blur">
@@ -287,8 +287,7 @@ function AgentsPage() {
                   <code className="text-xs">{selected.id}</code>
                 </p>
                 <p className="mt-2 text-xs text-[#54665a]">
-                  记忆作用域：此 Agent 下所有 pid；tid 在 Playground 或 API
-                  中按需传入。
+                  Memory scope: all pids under this agent; pass tid in Playground or via the API when needed.
                 </p>
                 <div className="mt-4 flex flex-wrap gap-2">
                   <Button
@@ -301,14 +300,14 @@ function AgentsPage() {
                       />
                     }
                   >
-                    在 Playground 试用
+                    Try in Playground
                   </Button>
                   <Button
                     variant="outline"
                     size="sm"
                     onClick={() => void onDeleteAgent(selected)}
                   >
-                    删除 Agent
+                    Delete agent
                   </Button>
                 </div>
 
@@ -316,9 +315,9 @@ function AgentsPage() {
                   API Keys
                 </h3>
                 {keysBusy && keys === null ? (
-                  <p className="text-xs text-[#54665a]">加载 Keys…</p>
+                  <p className="text-xs text-[#54665a]">Loading keys...</p>
                 ) : keys && keys.length === 0 ? (
-                  <p className="text-xs text-[#54665a]">尚无 Key。</p>
+                  <p className="text-xs text-[#54665a]">No keys yet.</p>
                 ) : (
                   <ul className="grid gap-2">
                     {(keys ?? []).map((key) => (
@@ -334,7 +333,7 @@ function AgentsPage() {
                             {key.prefix}…
                           </code>
                           {key.revoked_at ? (
-                            <span className="ml-2 text-red-600">已吊销</span>
+                            <span className="ml-2 text-red-600">Revoked</span>
                           ) : null}
                         </div>
                         {!key.revoked_at ? (
@@ -344,7 +343,7 @@ function AgentsPage() {
                             disabled={keysBusy}
                             onClick={() => void onRevokeKey(key)}
                           >
-                            吊销
+                            Revoke
                           </button>
                         ) : null}
                       </li>
@@ -358,27 +357,27 @@ function AgentsPage() {
                     value={newKeyName}
                     onChange={(e) => setNewKeyName(e.currentTarget.value)}
                     placeholder="key name"
-                    aria-label="新 Key 名称"
+                    aria-label="New key name"
                   />
                   <Button
                     size="sm"
                     disabled={keysBusy}
                     onClick={() => void onCreateKey()}
                   >
-                    新建 Key
+                    Create key
                   </Button>
                 </div>
 
                 <p className="mt-4 text-xs text-[#54665a]">
-                  CLI 调试：
+                  CLI testing:
                   <code className="mx-1 rounded bg-[rgba(31,57,42,0.08)] px-1">
                     memost login
                   </code>
-                  后使用
+                  then run
                   <code className="mx-1 rounded bg-[rgba(31,57,42,0.08)] px-1">
                     memost agents list
                   </code>
-                  。
+                  .
                 </p>
               </div>
             )}
@@ -387,12 +386,12 @@ function AgentsPage() {
 
         <aside className="rounded-xl border border-[rgba(31,57,42,0.14)] bg-[rgba(255,254,249,0.78)] p-5 shadow-[0_18px_50px_rgba(18,35,25,0.06)] backdrop-blur xl:sticky xl:top-24 xl:self-start">
           <h2 className="mb-3 text-lg font-semibold text-[#132018]">
-            创建 Agent
+            Create agent
           </h2>
           <form className="grid gap-3" onSubmit={onCreate}>
             <div>
               <label className={labelCls} htmlFor="agent-name">
-                名称
+                Name
               </label>
               <input
                 id="agent-name"
@@ -405,19 +404,19 @@ function AgentsPage() {
             </div>
             <div>
               <label className={labelCls} htmlFor="agent-desc">
-                描述
+                Description
               </label>
               <input
                 id="agent-desc"
                 className={inputCls}
                 value={description}
                 onChange={(e) => setDescription(e.currentTarget.value)}
-                placeholder="客户支持助手"
+                placeholder="customer-support-agent"
               />
             </div>
             <div>
               <label className={labelCls} htmlFor="agent-pid">
-                默认 pid
+                Default pid
               </label>
               <input
                 id="agent-pid"
@@ -427,21 +426,21 @@ function AgentsPage() {
                 placeholder="default"
               />
               <p className={helpCls}>
-                process / project 标识；未传 pid 的记忆会落在此作用域。
+                Process / project identifier; memories without a pid will fall into this scope.
               </p>
             </div>
             <Button type="submit" disabled={creating}>
-              {creating ? "创建中…" : "创建 Agent"}
+              {creating ? "Creating..." : "Create agent"}
             </Button>
           </form>
 
           {revealedKey ? (
             <div className="mt-5 rounded-lg border border-amber-300 bg-amber-50 p-3 text-sm text-amber-900">
               <p className="font-semibold">
-                API Key · {revealedKey.apiKey.name}
+                API key · {revealedKey.apiKey.name}
               </p>
               <p className="mt-1 text-xs">
-                Agent {revealedKey.agentId} — 仅显示一次，请复制保存。
+                Agent {revealedKey.agentId} - shown once, copy it now.
               </p>
               <code className="mt-2 block break-all rounded bg-white/80 px-2 py-2 text-xs">
                 {revealedKey.apiKey.raw}
@@ -453,14 +452,14 @@ function AgentsPage() {
                   void navigator.clipboard.writeText(revealedKey.apiKey.raw);
                 }}
               >
-                复制到剪贴板
+                Copy to clipboard
               </button>
               <button
                 type="button"
                 className="mt-2 ml-3 text-xs underline"
                 onClick={() => setRevealedKey(null)}
               >
-                关闭
+                Close
               </button>
             </div>
           ) : null}

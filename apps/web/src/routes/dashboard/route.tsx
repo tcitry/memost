@@ -80,7 +80,7 @@ function DashboardLayout() {
                 <SidebarGroupContent>
                   <SidebarMenu>
                     {NAV_LINKS.map((link) => (
-                      <SidebarMenuItem key={link.to}>
+                    <SidebarMenuItem key={link.to}>
                         <SidebarMenuButton
                           className="rounded-lg data-active:bg-[#244c37] data-active:text-[#f7f5ef] hover:bg-[rgba(31,57,42,0.045)]"
                           render={

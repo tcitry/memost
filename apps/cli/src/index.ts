@@ -2,7 +2,15 @@
 
 import { Command } from "commander";
 import { apiRequest } from "./api.js";
-import { clearClerkToken, configPath, loadConfig, saveConfig } from "./config.js";
+import {
+  authPath,
+  clearApiKey,
+  clearAuth,
+  configPath,
+  loadAuth,
+  loadConfig,
+  saveConfig,
+} from "./config.js";
 import { registerAgentsCommand } from "./commands/agents.js";
 import { registerKeysCommand } from "./commands/keys.js";
 import { registerMemoriesCommand } from "./commands/memories.js";
@@ -17,15 +25,15 @@ const program = new Command();
 
 program
   .name("memost")
-  .description("Memost 命令行工具：Clerk 登录、Agent 与记忆调试")
+  .description("Memost CLI: Clerk login, agent management, and memory debugging")
   .version("0.1.0");
 
 program
   .command("login")
-  .description("通过浏览器 Clerk 登录，保存会话到 ~/.memost/config.json")
-  .option("--web-url <url>", "Dashboard 地址", loadConfig().webBaseUrl)
-  .option("--token <jwt>", "手动粘贴 Clerk JWT（跳过浏览器）")
-  .option("--api-key <key>", "仅保存 mst_* API Key（记忆接口）")
+  .description("Sign in with Clerk in the browser and save the session to ~/.memost/auth.json")
+  .option("--web-url <url>", "Dashboard URL", loadConfig().webBaseUrl)
+  .option("--token <jwt>", "Paste a Clerk JWT manually (skip the browser)")
+  .option("--api-key <key>", "Save only an mst_* API key (for memory APIs)")
   .action(async (opts: { webUrl: string; token?: string; apiKey?: string }) => {
     try {
       if (opts.apiKey) {
@@ -44,22 +52,25 @@ program
 
 program
   .command("logout")
-  .description("清除本地 Clerk 会话")
+  .description("Clear local authentication data")
   .action(() => {
-    clearClerkToken();
-    console.log("已清除 clerkToken。");
+    clearAuth();
+    clearApiKey();
+    console.log("Authentication data cleared.");
   });
 
 program
   .command("whoami")
-  .description("检查 API 连通性与当前配置")
+  .description("Check API connectivity and current configuration")
   .action(async () => {
     const config = loadConfig();
+    const auth = loadAuth();
     console.log(`config: ${configPath()}`);
+    console.log(`auth:   ${authPath()}`);
     console.log(`api:    ${config.apiBaseUrl}`);
     console.log(`web:    ${config.webBaseUrl}`);
-    console.log(`clerk:  ${config.clerkToken ? "yes" : "no"}`);
-    console.log(`apiKey: ${config.apiKey ? `${config.apiKey.slice(0, 16)}…` : "no"}`);
+    console.log(`clerk:  ${auth.clerkToken ? "yes" : "no"}`);
+    console.log(`apiKey: ${auth.apiKey ? `${auth.apiKey.slice(0, 16)}…` : "no"}`);
     console.log(`agent:  ${config.defaultAgentId ?? "(unset)"}`);
     try {
       const health = await fetch(`${config.apiBaseUrl.replace(/\/$/, "")}/health`);
@@ -68,7 +79,7 @@ program
     } catch (err) {
       console.log(`health: unreachable (${err instanceof Error ? err.message : err})`);
     }
-    if (config.clerkToken) {
+    if (auth.clerkToken) {
       try {
         const data = await apiRequest<{ agents: unknown[] }>({
           path: "/v1/agents",
@@ -83,18 +94,20 @@ program
     }
   });
 
-const configCmd = program.command("config").description("本地配置");
+const configCmd = program.command("config").description("Local configuration");
 
 configCmd
   .command("show")
-  .description("显示配置（脱敏）")
-  .option("--json", "完整 JSON")
+  .description("Show local configuration (secrets masked)")
+  .option("--json", "Full JSON")
   .action((opts: { json?: boolean }) => {
     const c = loadConfig();
+    const a = loadAuth();
     const masked = {
       ...c,
-      clerkToken: c.clerkToken ? "[set]" : undefined,
-      apiKey: c.apiKey ? `${c.apiKey.slice(0, 16)}…` : undefined,
+      authPath: authPath(),
+      clerkToken: a.clerkToken ? "[set]" : undefined,
+      apiKey: a.apiKey ? `${a.apiKey.slice(0, 16)}…` : undefined,
     };
     if (opts.json) printJson(masked);
     else printJson(masked);
@@ -102,14 +115,14 @@ configCmd
 
 configCmd
   .command("set")
-  .description("设置 api-url / web-url")
+  .description("Set api-url / web-url")
   .argument("<key>", "api-url | web-url")
-  .argument("<value>", "新值")
+  .argument("<value>", "New value")
   .action((key: string, value: string) => {
     if (key === "api-url") saveConfig({ apiBaseUrl: value });
     else if (key === "web-url") saveConfig({ webBaseUrl: value });
-    else die(`未知键: ${key}，可用 api-url、web-url`);
-    console.log(`已更新 ${key}`);
+    else die(`Unknown key: ${key}. Available keys: api-url, web-url`);
+    console.log(`Updated ${key}`);
   });
 
 registerAgentsCommand(program);

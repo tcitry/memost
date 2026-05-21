@@ -1,6 +1,6 @@
 import type { Command } from "commander";
 import { apiRequest } from "../api.js";
-import { loadConfig, saveConfig } from "../config.js";
+import { loadConfig, saveConfig, saveAuth } from "../config.js";
 import { die, printJson, printTable } from "../output.js";
 
 interface AgentRow {
@@ -14,12 +14,12 @@ interface AgentRow {
 }
 
 export function registerAgentsCommand(program: Command): void {
-  const agents = program.command("agents").description("管理 Agent（需 Clerk 登录）");
+  const agents = program.command("agents").description("Manage agents (Clerk login required)");
 
   agents
     .command("list")
-    .description("列出当前组织/用户下的所有 Agent")
-    .option("--json", "以 JSON 输出")
+    .description("List all agents for the current organization or user")
+    .option("--json", "Output JSON")
     .action(async (opts: { json?: boolean }) => {
       try {
         const data = await apiRequest<{ agents: AgentRow[] }>({
@@ -46,11 +46,11 @@ export function registerAgentsCommand(program: Command): void {
 
   agents
     .command("create")
-    .description("创建 Agent（同时返回首个 API Key）")
-    .requiredOption("-n, --name <name>", "Agent 名称")
-    .option("-d, --description <text>", "描述")
-    .option("--default-pid <pid>", "默认 process / project id", "default")
-    .option("--json", "以 JSON 输出")
+    .description("Create an agent and return its first API key")
+    .requiredOption("-n, --name <name>", "Agent name")
+    .option("-d, --description <text>", "Description")
+    .option("--default-pid <pid>", "Default process / project id", "default")
+    .option("--json", "Output JSON")
     .action(
       async (opts: {
         name: string;
@@ -74,16 +74,16 @@ export function registerAgentsCommand(program: Command): void {
           });
           saveConfig({
             defaultAgentId: data.agent.id,
-            apiKey: data.apiKey.raw,
           });
+          saveAuth({ apiKey: data.apiKey.raw });
           if (opts.json) {
             printJson(data);
             return;
           }
-          console.log(`已创建 Agent: ${data.agent.name} (${data.agent.id})`);
-          console.log(`默认 pid: ${data.agent.default_pid}`);
-          console.log(`API Key（仅显示一次）:\n  ${data.apiKey.raw}`);
-          console.log("已写入 defaultAgentId 与 apiKey 到本地配置。");
+          console.log(`Created agent: ${data.agent.name} (${data.agent.id})`);
+          console.log(`Default pid: ${data.agent.default_pid}`);
+          console.log(`API key (shown once):\n  ${data.apiKey.raw}`);
+          console.log("Saved defaultAgentId. The API key was written to ~/.memost/auth.json.");
         } catch (err) {
           die(err instanceof Error ? err.message : String(err));
         }
@@ -92,9 +92,9 @@ export function registerAgentsCommand(program: Command): void {
 
   agents
     .command("get")
-    .description("查看单个 Agent")
+    .description("Show a single agent")
     .argument("<id>", "Agent id")
-    .option("--json", "以 JSON 输出")
+    .option("--json", "Output JSON")
     .action(async (id: string, opts: { json?: boolean }) => {
       try {
         const data = await apiRequest<{ agent: AgentRow }>({
@@ -113,9 +113,9 @@ export function registerAgentsCommand(program: Command): void {
 
   agents
     .command("delete")
-    .description("删除 Agent 及其关联数据")
+    .description("Delete an agent and its related data")
     .argument("<id>", "Agent id")
-    .option("-y, --yes", "跳过确认")
+    .option("-y, --yes", "Skip confirmation")
     .action(async (id: string, opts: { yes?: boolean }) => {
       if (!opts.yes) {
         const readline = await import("node:readline");
@@ -124,11 +124,11 @@ export function registerAgentsCommand(program: Command): void {
           output: process.stdout,
         });
         const answer = await new Promise<string>((resolve) => {
-          rl.question(`确认删除 Agent ${id}? [y/N] `, resolve);
+          rl.question(`Delete agent ${id}? [y/N] `, resolve);
         });
         rl.close();
         if (answer.toLowerCase() !== "y") {
-          console.log("已取消。");
+          console.log("Cancelled.");
           return;
         }
       }
@@ -142,7 +142,7 @@ export function registerAgentsCommand(program: Command): void {
         if (config.defaultAgentId === id) {
           saveConfig({ defaultAgentId: undefined });
         }
-        console.log(`已删除 Agent ${id}`);
+        console.log(`Deleted agent ${id}`);
       } catch (err) {
         die(err instanceof Error ? err.message : String(err));
       }
@@ -150,10 +150,10 @@ export function registerAgentsCommand(program: Command): void {
 
   agents
     .command("use")
-    .description("设置默认 Agent id（memories 命令未指定 --agent 时使用）")
+    .description("Set the default agent id used by memories commands when --agent is omitted")
     .argument("<id>", "Agent id")
     .action((id: string) => {
       saveConfig({ defaultAgentId: id.trim() });
-      console.log(`默认 Agent 已设为 ${id}`);
+      console.log(`Default agent set to ${id}`);
     });
 }

@@ -1,6 +1,6 @@
 import type { Command } from "commander";
 import { apiRequest } from "../api.js";
-import { loadConfig } from "../config.js";
+import { loadAuth, loadConfig } from "../config.js";
 import { die, printJson } from "../output.js";
 
 interface MemoryRow {
@@ -16,17 +16,17 @@ interface MemoryRow {
 export function registerMemoriesCommand(program: Command): void {
   const memories = program
     .command("memories")
-    .description("记忆读写（Clerk + x-agent-id 或 mst_* API Key）");
+    .description("Read and write memories (Clerk + x-agent-id or mst_* API key)");
 
   memories
     .command("add")
-    .description("写入一条记忆")
-    .requiredOption("-c, --content <text>", "记忆内容")
-    .option("-a, --agent <id>", "Agent id（默认读配置 defaultAgentId）")
+    .description("Write a memory")
+    .requiredOption("-c, --content <text>", "Memory content")
+    .option("-a, --agent <id>", "Agent id (defaults to config defaultAgentId)")
     .option("--pid <pid>", "process / project")
-    .option("--tid <tid>", "thread（可选）")
-    .option("--no-kg", "跳过知识图谱抽取")
-    .option("--json", "以 JSON 输出")
+    .option("--tid <tid>", "Thread (optional)")
+    .option("--no-kg", "Skip knowledge graph extraction")
+    .option("--json", "Output JSON")
     .action(
       async (opts: {
         content: string;
@@ -37,15 +37,16 @@ export function registerMemoriesCommand(program: Command): void {
         json?: boolean;
       }) => {
         const config = loadConfig();
+        const auth = loadAuth();
         const agentId = opts.agent ?? config.defaultAgentId;
-        if (!agentId && !config.apiKey) {
-          die("请指定 --agent 或先 memost agents create / agents use");
+        if (!agentId && !auth.apiKey) {
+          die("Specify --agent or run memost agents create / agents use first");
         }
         try {
           const data = await apiRequest({
             method: "POST",
             path: "/v1/memories",
-            auth: config.apiKey ? "api_key" : "clerk",
+            auth: auth.apiKey ? "api_key" : "clerk",
             agentId,
             body: {
               agentId,
@@ -56,7 +57,7 @@ export function registerMemoriesCommand(program: Command): void {
             },
           });
           if (opts.json) printJson(data);
-          else console.log("记忆已写入。");
+          else console.log("Memory written.");
         } catch (err) {
           die(err instanceof Error ? err.message : String(err));
         }
@@ -65,13 +66,13 @@ export function registerMemoriesCommand(program: Command): void {
 
   memories
     .command("search")
-    .description("检索记忆")
-    .requiredOption("-q, --query <text>", "查询文本")
+    .description("Search memories")
+    .requiredOption("-q, --query <text>", "Query text")
     .option("-a, --agent <id>", "Agent id")
-    .option("--pid <pid>", "限定 process")
-    .option("--tid <tid>", "限定 thread")
-    .option("-l, --limit <n>", "条数上限", "8")
-    .option("--json", "以 JSON 输出")
+    .option("--pid <pid>", "Limit to a process")
+    .option("--tid <tid>", "Limit to a thread")
+    .option("-l, --limit <n>", "Max results", "8")
+    .option("--json", "Output JSON")
     .action(
       async (opts: {
         query: string;
@@ -82,9 +83,10 @@ export function registerMemoriesCommand(program: Command): void {
         json?: boolean;
       }) => {
         const config = loadConfig();
+        const auth = loadAuth();
         const agentId = opts.agent ?? config.defaultAgentId;
-        if (!agentId && !config.apiKey) {
-          die("请指定 --agent 或配置 defaultAgentId / apiKey");
+        if (!agentId && !auth.apiKey) {
+          die("Specify --agent or configure defaultAgentId / apiKey");
         }
         try {
           const data = await apiRequest<{
@@ -93,7 +95,7 @@ export function registerMemoriesCommand(program: Command): void {
           }>({
             method: "POST",
             path: "/v1/memories/search",
-            auth: config.apiKey ? "api_key" : "clerk",
+            auth: auth.apiKey ? "api_key" : "clerk",
             agentId,
             body: {
               agentId,
@@ -114,7 +116,7 @@ export function registerMemoriesCommand(program: Command): void {
             console.log(`• (${scope})${score} ${m.content}`);
           }
           if ((data.triples ?? []).length > 0) {
-            console.log(`\n${data.triples.length} 条图谱命中（用 --json 查看详情）`);
+            console.log(`\n${data.triples.length} graph matches found (use --json for details)`);
           }
         } catch (err) {
           die(err instanceof Error ? err.message : String(err));
@@ -124,12 +126,12 @@ export function registerMemoriesCommand(program: Command): void {
 
   memories
     .command("list")
-    .description("列出记忆")
+    .description("List memories")
     .option("-a, --agent <id>", "Agent id")
-    .option("--pid <pid>", "限定 process")
-    .option("--tid <tid>", "限定 thread")
-    .option("-l, --limit <n>", "条数", "20")
-    .option("--json", "以 JSON 输出")
+    .option("--pid <pid>", "Limit to a process")
+    .option("--tid <tid>", "Limit to a thread")
+    .option("-l, --limit <n>", "Count", "20")
+    .option("--json", "Output JSON")
     .action(
       async (opts: {
         agent?: string;
@@ -139,9 +141,10 @@ export function registerMemoriesCommand(program: Command): void {
         json?: boolean;
       }) => {
         const config = loadConfig();
+        const auth = loadAuth();
         const agentId = opts.agent ?? config.defaultAgentId;
-        if (!agentId && !config.apiKey) {
-          die("请指定 --agent");
+        if (!agentId && !auth.apiKey) {
+          die("Specify --agent");
         }
         const qs = new URLSearchParams();
         if (opts.pid) qs.set("pid", opts.pid);
@@ -151,7 +154,7 @@ export function registerMemoriesCommand(program: Command): void {
         try {
           const data = await apiRequest<{ memories: MemoryRow[] }>({
             path: `/v1/memories?${qs.toString()}`,
-            auth: config.apiKey ? "api_key" : "clerk",
+            auth: auth.apiKey ? "api_key" : "clerk",
             agentId,
           });
           if (opts.json) printJson(data.memories ?? []);

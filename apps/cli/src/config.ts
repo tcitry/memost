@@ -2,19 +2,22 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 
-/** 本地 CLI 配置，保存在 ~/.memost/config.json */
+/** Local CLI config stored at ~/.memost/config.json. */
 export interface MemostConfig {
   apiBaseUrl: string;
   webBaseUrl: string;
-  /** Clerk 会话 JWT，用于 /v1/agents 等管理接口 */
-  clerkToken?: string;
-  /** Agent API Key（mst_*），用于 /v1/memories */
-  apiKey?: string;
   defaultAgentId?: string;
+}
+
+/** Local CLI auth data stored at ~/.memost/auth.json. */
+export interface MemostAuth {
+  clerkToken?: string;
+  apiKey?: string;
 }
 
 const CONFIG_DIR = path.join(os.homedir(), ".memost");
 const CONFIG_PATH = path.join(CONFIG_DIR, "config.json");
+const AUTH_PATH = path.join(CONFIG_DIR, "auth.json");
 
 const DEFAULTS: MemostConfig = {
   apiBaseUrl: "http://127.0.0.1:8787",
@@ -44,8 +47,36 @@ export function saveConfig(patch: Partial<MemostConfig>): MemostConfig {
   return next;
 }
 
-export function clearClerkToken(): MemostConfig {
-  const current = loadConfig();
+export function authPath(): string {
+  return AUTH_PATH;
+}
+
+export function loadAuth(): MemostAuth {
+  try {
+    const raw = fs.readFileSync(AUTH_PATH, "utf8");
+    return JSON.parse(raw) as MemostAuth;
+  } catch {
+    return {};
+  }
+}
+
+export function saveAuth(patch: Partial<MemostAuth>): MemostAuth {
+  const next = { ...loadAuth(), ...patch };
+  fs.mkdirSync(CONFIG_DIR, { recursive: true, mode: 0o700 });
+  fs.writeFileSync(AUTH_PATH, `${JSON.stringify(next, null, 2)}\n`, {
+    mode: 0o600,
+  });
+  return next;
+}
+
+export function clearAuth(): MemostAuth {
+  const current = loadAuth();
   const { clerkToken: _removed, ...rest } = current;
-  return saveConfig(rest as MemostConfig);
+  return saveAuth(rest);
+}
+
+export function clearApiKey(): MemostAuth {
+  const current = loadAuth();
+  const { apiKey: _removed, ...rest } = current;
+  return saveAuth(rest);
 }

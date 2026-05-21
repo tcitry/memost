@@ -1,4 +1,4 @@
-/** 终端输出辅助 */
+/** Terminal output helpers. */
 
 export function printJson(data: unknown): void {
   console.log(JSON.stringify(data, null, 2));

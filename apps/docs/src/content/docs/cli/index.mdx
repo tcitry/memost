@@ -10,8 +10,10 @@ The memo.st CLI lives in `apps/cli` and publishes the `memost` executable from
 the compiled `dist/index.js` entrypoint.
 
 The CLI supports **Clerk browser login** (`memost login`), **Agent / API key
-management**, and **memory add / search / list** against the API worker. See
-[CLI commands](/docs/cli/commands) for the full reference.
+management**, and **memory add / search / list** against the API worker. Local
+auth is stored in `~/.memost/auth.json` and general config in
+`~/.memost/config.json`. See [CLI commands](/docs/cli/commands) for the full
+reference.
 
 Memory scope hierarchy: **Agent** → **pid** (process) → **tid** (thread,
 optional), matching the D1 schema and dashboard.

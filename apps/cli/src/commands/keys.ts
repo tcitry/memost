@@ -1,6 +1,6 @@
 import type { Command } from "commander";
 import { apiRequest } from "../api.js";
-import { loadConfig, saveConfig } from "../config.js";
+import { saveAuth } from "../config.js";
 import { die, printJson, printTable } from "../output.js";
 
 interface ApiKeyRow {
@@ -14,13 +14,13 @@ interface ApiKeyRow {
 }
 
 export function registerKeysCommand(program: Command): void {
-  const keys = program.command("keys").description("管理 Agent API Key（需 Clerk 登录）");
+  const keys = program.command("keys").description("Manage agent API keys (Clerk login required)");
 
   keys
     .command("list")
-    .description("列出某 Agent 的 API Key")
+    .description("List API keys for an agent")
     .requiredOption("-a, --agent <id>", "Agent id")
-    .option("--json", "以 JSON 输出")
+    .option("--json", "Output JSON")
     .action(async (opts: { agent: string; json?: boolean }) => {
       try {
         const data = await apiRequest<{ keys: ApiKeyRow[] }>({
@@ -48,10 +48,10 @@ export function registerKeysCommand(program: Command): void {
 
   keys
     .command("create")
-    .description("为 Agent 创建新 API Key")
+    .description("Create a new API key for an agent")
     .requiredOption("-a, --agent <id>", "Agent id")
-    .option("-n, --name <name>", "Key 名称", "default")
-    .option("--json", "以 JSON 输出")
+    .option("-n, --name <name>", "Key name", "default")
+    .option("--json", "Output JSON")
     .action(async (opts: { agent: string; name: string; json?: boolean }) => {
       try {
         const data = await apiRequest<{
@@ -69,7 +69,7 @@ export function registerKeysCommand(program: Command): void {
           printJson(data);
           return;
         }
-        console.log(`新 API Key（仅显示一次）:\n  ${data.raw}`);
+        console.log(`New API key (shown once):\n  ${data.raw}`);
       } catch (err) {
         die(err instanceof Error ? err.message : String(err));
       }
@@ -77,7 +77,7 @@ export function registerKeysCommand(program: Command): void {
 
   keys
     .command("revoke")
-    .description("吊销 API Key")
+    .description("Revoke an API key")
     .requiredOption("-a, --agent <id>", "Agent id")
     .argument("<keyId>", "Key id")
     .action(async (keyId: string, opts: { agent: string }) => {
@@ -87,7 +87,7 @@ export function registerKeysCommand(program: Command): void {
           path: `/v1/agents/${encodeURIComponent(opts.agent)}/keys/${encodeURIComponent(keyId)}`,
           auth: "clerk",
         });
-        console.log(`已吊销 Key ${keyId}`);
+        console.log(`Revoked key ${keyId}`);
       } catch (err) {
         die(err instanceof Error ? err.message : String(err));
       }
@@ -95,10 +95,10 @@ export function registerKeysCommand(program: Command): void {
 
   keys
     .command("use")
-    .description("将 raw API Key 写入本地配置（供 memories 使用）")
-    .argument("<raw>", "mst_test_* 或 mst_live_*")
+    .description("Save a raw API key locally for memory commands")
+    .argument("<raw>", "mst_test_* or mst_live_*")
     .action((raw: string) => {
-      saveConfig({ apiKey: raw.trim() });
-      console.log("已保存 apiKey 到 ~/.memost/config.json");
+      saveAuth({ apiKey: raw.trim() });
+      console.log("Saved apiKey to ~/.memost/auth.json");
     });
 }

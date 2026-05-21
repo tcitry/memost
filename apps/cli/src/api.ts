@@ -1,4 +1,4 @@
-import { loadConfig } from "./config.js";
+import { loadAuth, loadConfig } from "./config.js";
 
 export class ApiError extends Error {
   constructor(
@@ -13,16 +13,17 @@ export interface RequestOptions {
   method?: "GET" | "POST" | "DELETE";
   path: string;
   body?: unknown;
-  /** 管理接口默认用 Clerk；记忆接口可用 apiKey */
+  /** Management endpoints use Clerk by default; memory endpoints can use apiKey. */
   auth?: "clerk" | "api_key" | "auto";
   agentId?: string;
 }
 
-/** 向 Memost API Worker 发起请求 */
+/** Send a request to the Memost API worker. */
 export async function apiRequest<T = unknown>(opts: RequestOptions): Promise<T> {
   const config = loadConfig();
   const base = config.apiBaseUrl.replace(/\/$/, "");
   const url = `${base}${opts.path}`;
+  const auth = loadAuth();
 
   const authMode = opts.auth ?? "auto";
   const headers: Record<string, string> = {
@@ -30,14 +31,14 @@ export async function apiRequest<T = unknown>(opts: RequestOptions): Promise<T> 
   };
 
   if (authMode === "clerk" || (authMode === "auto" && opts.path.startsWith("/v1/agents"))) {
-    if (!config.clerkToken) {
-      throw new ApiError(401, "未登录：请先运行 memost login");
+    if (!auth.clerkToken) {
+      throw new ApiError(401, "Not signed in. Run memost login first.");
     }
-    headers.authorization = `Bearer ${config.clerkToken}`;
+    headers.authorization = `Bearer ${auth.clerkToken}`;
   } else if (authMode === "api_key" || (authMode === "auto" && opts.path.startsWith("/v1/memories"))) {
-    const key = config.apiKey;
+    const key = auth.apiKey;
     if (!key) {
-      throw new ApiError(401, "未配置 API Key：memost keys use <raw> 或 memost login --api-key");
+      throw new ApiError(401, "No API key configured. Run memost keys use <raw> or memost login --api-key.");
     }
     headers.authorization = `Bearer ${key}`;
   }
@@ -58,7 +59,7 @@ export async function apiRequest<T = unknown>(opts: RequestOptions): Promise<T> 
       const parsed = JSON.parse(text) as { error?: string };
       if (parsed.error) msg = parsed.error;
     } catch {
-      // 保留原始文本
+      // Keep the original text.
     }
     throw new ApiError(res.status, msg || res.statusText);
   }

@@ -4,6 +4,13 @@
   "main": "@tanstack/react-start/server-entry",
   "compatibility_date": "2026-05-14",
   "compatibility_flags": ["nodejs_compat"],
+  "workers_dev": false,
+  "routes": [
+    {
+      "pattern": "memost.iuvdev.com",
+      "custom_domain": true
+    }
+  ],
   "assets": {
     "directory": "./dist/client"
   },
@@ -21,6 +28,13 @@
       "assets": {
         "directory": "./dist/client"
       },
+      "workers_dev": false,
+      "routes": [
+        {
+          "pattern": "memo.st",
+          "custom_domain": true
+        }
+      ],
       "observability": {
         "enabled": true
       },

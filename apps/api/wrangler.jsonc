@@ -4,6 +4,13 @@
   "main": "src/index.ts",
   "compatibility_date": "2026-05-14",
   "compatibility_flags": ["nodejs_compat"],
+  "workers_dev": false,
+  "routes": [
+    {
+      "pattern": "memost-api.iuvdev.com",
+      "custom_domain": true
+    }
+  ],
   "observability": {
     "enabled": true,
     "head_sampling_rate": 1
@@ -40,6 +47,13 @@
         "enabled": true,
         "head_sampling_rate": 1
       },
+      "workers_dev": false,
+      "routes": [
+        {
+          "pattern": "api.memo.st",
+          "custom_domain": true
+        }
+      ],
       "vars": {
         "MEMOST_ENV": "production",
         "VECTOR_DIMENSIONS": "1024",

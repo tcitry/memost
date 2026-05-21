@@ -1,7 +1,7 @@
 import { Link, createFileRoute } from "@tanstack/react-router";
 import { useCallback, useEffect, useState } from "react";
 import { Button } from "@repo/design-system/components/ui/button";
-import type { Agent, ApiKey, ApiKeyWithSecret } from "../lib/types";
+import type { Agent, ApiKey, ApiKeyWithSecret } from "../../lib/types";
 
 const labelCls =
   "block text-xs font-semibold uppercase tracking-wide text-[#3b7055] mb-1";

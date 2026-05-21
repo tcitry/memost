@@ -29,6 +29,8 @@ export interface ApiKeyWithSecret extends Pick<ApiKey, "id" | "prefix" | "name">
 export interface Memory {
   id: string;
   agent_id: string;
+  subject_id?: string;
+  namespace?: string;
   pid: string;
   tid: string | null;
   content: string;
@@ -37,6 +39,11 @@ export interface Memory {
   created_at: string;
   updated_at: string;
   score?: number | null;
+  semanticScore?: number | null;
+  keywordScore?: number | null;
+  graphScore?: number | null;
+  recencyScore?: number;
+  reasons?: string[];
 }
 
 export interface KgTriple {
@@ -55,6 +62,21 @@ export interface KgTriple {
 export interface SearchResult {
   memories: Memory[];
   triples: KgTriple[];
+  strategy?: "semantic" | "keyword" | "graph" | "hybrid";
+  context?: {
+    query: string;
+    items: Array<{
+      memoryId: string;
+      content: string;
+      score: number;
+      scope: {
+        pid: string;
+        tid: string | null;
+        subjectId: string;
+      };
+      citations: Array<{ type: "memory" | "triple"; id: string }>;
+    }>;
+  };
 }
 
 export interface AddResult {

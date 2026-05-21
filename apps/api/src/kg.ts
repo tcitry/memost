@@ -1,3 +1,6 @@
+import { and, desc, eq, like, or, sql } from "drizzle-orm";
+import { createDb } from "./db/client";
+import { kgTriples } from "./db/schema";
 import { embed } from "./embeddings";
 import { newTripleId } from "./ids";
 import type { Bindings, KgTripleRow } from "./types";
@@ -83,9 +86,11 @@ export async function storeTriples(args: StoreTriplesArgs): Promise<KgTripleRow[
   if (triples.length === 0) return [];
 
   const stored: KgTripleRow[] = [];
+  const db = createDb(env.DB);
   for (const t of triples) {
     const id = newTripleId();
     const phrase = `${t.subject} ${t.predicate} ${t.object}`;
+    const createdAt = new Date().toISOString();
     let vectorId: string | null = null;
     try {
       const embedding = await embed(env, phrase);
@@ -108,26 +113,20 @@ export async function storeTriples(args: StoreTriplesArgs): Promise<KgTripleRow[
       console.warn("kg_vector_upsert_failed", err);
     }
 
-    await env.DB.prepare(
-      `INSERT INTO kg_triples
-        (id, agent_id, owner_id, pid, tid, subject, predicate, object,
-         confidence, source_memory_id, vector_id)
-       VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11)`,
-    )
-      .bind(
+    await db.insert(kgTriples).values({
         id,
-        agentId,
-        ownerId,
+        agent_id: agentId,
+        owner_id: ownerId,
         pid,
         tid,
-        t.subject,
-        t.predicate,
-        t.object,
-        t.confidence,
-        sourceMemoryId,
-        vectorId,
-      )
-      .run();
+        subject: t.subject,
+        predicate: t.predicate,
+        object: t.object,
+        confidence: t.confidence,
+        source_memory_id: sourceMemoryId,
+        vector_id: vectorId,
+        created_at: createdAt,
+      });
 
     stored.push({
       id,
@@ -141,7 +140,7 @@ export async function storeTriples(args: StoreTriplesArgs): Promise<KgTripleRow[
       confidence: t.confidence,
       source_memory_id: sourceMemoryId,
       vector_id: vectorId,
-      created_at: new Date().toISOString(),
+      created_at: createdAt,
     });
   }
   return stored;
@@ -152,38 +151,29 @@ export async function storeTriples(args: StoreTriplesArgs): Promise<KgTripleRow[
 // be upgraded to FTS5 later. The result is a deduplicated list of
 // memory ids ranked by triple count.
 export async function searchKg(
-  db: D1Database,
+  dbBinding: D1Database,
   agentId: string,
   query: string,
   pid: string | null,
   tid: string | null,
   limit = 20,
 ): Promise<KgTripleRow[]> {
+  const db = createDb(dbBinding);
   const needle = `%${query.toLowerCase()}%`;
-  const filters: string[] = ["agent_id = ?1"];
-  const binds: unknown[] = [agentId];
-  let i = 2;
-  filters.push(
-    `(LOWER(subject) LIKE ?${i} OR LOWER(object) LIKE ?${i} OR LOWER(predicate) LIKE ?${i})`,
-  );
-  binds.push(needle);
-  i += 1;
-  if (pid) {
-    filters.push(`pid = ?${i}`);
-    binds.push(pid);
-    i += 1;
-  }
-  if (tid) {
-    filters.push(`tid = ?${i}`);
-    binds.push(tid);
-    i += 1;
-  }
-  const sql = `SELECT * FROM kg_triples WHERE ${filters.join(" AND ")}
-    ORDER BY confidence DESC, created_at DESC LIMIT ?${i}`;
-  binds.push(limit);
-  const res = await db
-    .prepare(sql)
-    .bind(...binds)
-    .all<KgTripleRow>();
-  return res.results ?? [];
+  const filters = [
+    eq(kgTriples.agent_id, agentId),
+    or(
+      like(sql`lower(${kgTriples.subject})`, needle),
+      like(sql`lower(${kgTriples.object})`, needle),
+      like(sql`lower(${kgTriples.predicate})`, needle),
+    ),
+  ];
+  if (pid) filters.push(eq(kgTriples.pid, pid));
+  if (tid) filters.push(eq(kgTriples.tid, tid));
+  return db
+    .select()
+    .from(kgTriples)
+    .where(and(...filters))
+    .orderBy(desc(kgTriples.confidence), desc(kgTriples.created_at))
+    .limit(limit);
 }

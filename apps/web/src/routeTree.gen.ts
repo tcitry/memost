@@ -9,20 +9,20 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as DashboardRouteImport } from './routes/dashboard'
+import { Route as DashboardRouteRouteImport } from './routes/dashboard/route'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as DashboardIndexRouteImport } from './routes/dashboard.index'
-import { Route as DashboardPlaygroundRouteImport } from './routes/dashboard.playground'
-import { Route as DashboardAgentsRouteImport } from './routes/dashboard.agents'
-import { Route as CliLoginRouteImport } from './routes/cli.login'
-import { Route as ApiPlaygroundRouteImport } from './routes/api.playground'
-import { Route as ApiMemoriesRouteImport } from './routes/api.memories'
-import { Route as ApiAgentsRouteImport } from './routes/api.agents'
-import { Route as ApiAgentsIdRouteImport } from './routes/api.agents.$id'
-import { Route as ApiAgentsIdKeysRouteImport } from './routes/api.agents.$id.keys'
-import { Route as ApiAgentsIdKeysKeyIdRouteImport } from './routes/api.agents.$id.keys.$keyId'
+import { Route as DashboardIndexRouteImport } from './routes/dashboard/index'
+import { Route as DashboardPlaygroundRouteImport } from './routes/dashboard/playground'
+import { Route as DashboardAgentsRouteImport } from './routes/dashboard/agents'
+import { Route as CliLoginRouteImport } from './routes/cli/login'
+import { Route as ApiPlaygroundRouteImport } from './routes/api/playground'
+import { Route as ApiMemoriesRouteImport } from './routes/api/memories'
+import { Route as ApiAgentsRouteImport } from './routes/api/agents'
+import { Route as ApiAgentsIdRouteImport } from './routes/api/agents/$id'
+import { Route as ApiAgentsIdKeysRouteImport } from './routes/api/agents/$id/keys'
+import { Route as ApiAgentsIdKeysKeyIdRouteImport } from './routes/api/agents/$id/keys/$keyId'
 
-const DashboardRoute = DashboardRouteImport.update({
+const DashboardRouteRoute = DashboardRouteRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
   getParentRoute: () => rootRouteImport,
@@ -35,17 +35,17 @@ const IndexRoute = IndexRouteImport.update({
 const DashboardIndexRoute = DashboardIndexRouteImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => DashboardRoute,
+  getParentRoute: () => DashboardRouteRoute,
 } as any)
 const DashboardPlaygroundRoute = DashboardPlaygroundRouteImport.update({
   id: '/playground',
   path: '/playground',
-  getParentRoute: () => DashboardRoute,
+  getParentRoute: () => DashboardRouteRoute,
 } as any)
 const DashboardAgentsRoute = DashboardAgentsRouteImport.update({
   id: '/agents',
   path: '/agents',
-  getParentRoute: () => DashboardRoute,
+  getParentRoute: () => DashboardRouteRoute,
 } as any)
 const CliLoginRoute = CliLoginRouteImport.update({
   id: '/cli/login',
@@ -85,7 +85,7 @@ const ApiAgentsIdKeysKeyIdRoute = ApiAgentsIdKeysKeyIdRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/dashboard': typeof DashboardRouteWithChildren
+  '/dashboard': typeof DashboardRouteRouteWithChildren
   '/api/agents': typeof ApiAgentsRouteWithChildren
   '/api/memories': typeof ApiMemoriesRoute
   '/api/playground': typeof ApiPlaygroundRoute
@@ -113,7 +113,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/dashboard': typeof DashboardRouteWithChildren
+  '/dashboard': typeof DashboardRouteRouteWithChildren
   '/api/agents': typeof ApiAgentsRouteWithChildren
   '/api/memories': typeof ApiMemoriesRoute
   '/api/playground': typeof ApiPlaygroundRoute
@@ -171,7 +171,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  DashboardRoute: typeof DashboardRouteWithChildren
+  DashboardRouteRoute: typeof DashboardRouteRouteWithChildren
   ApiAgentsRoute: typeof ApiAgentsRouteWithChildren
   ApiMemoriesRoute: typeof ApiMemoriesRoute
   ApiPlaygroundRoute: typeof ApiPlaygroundRoute
@@ -184,7 +184,7 @@ declare module '@tanstack/react-router' {
       id: '/dashboard'
       path: '/dashboard'
       fullPath: '/dashboard'
-      preLoaderRoute: typeof DashboardRouteImport
+      preLoaderRoute: typeof DashboardRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -199,21 +199,21 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/dashboard/'
       preLoaderRoute: typeof DashboardIndexRouteImport
-      parentRoute: typeof DashboardRoute
+      parentRoute: typeof DashboardRouteRoute
     }
     '/dashboard/playground': {
       id: '/dashboard/playground'
       path: '/playground'
       fullPath: '/dashboard/playground'
       preLoaderRoute: typeof DashboardPlaygroundRouteImport
-      parentRoute: typeof DashboardRoute
+      parentRoute: typeof DashboardRouteRoute
     }
     '/dashboard/agents': {
       id: '/dashboard/agents'
       path: '/agents'
       fullPath: '/dashboard/agents'
       preLoaderRoute: typeof DashboardAgentsRouteImport
-      parentRoute: typeof DashboardRoute
+      parentRoute: typeof DashboardRouteRoute
     }
     '/cli/login': {
       id: '/cli/login'
@@ -267,20 +267,20 @@ declare module '@tanstack/react-router' {
   }
 }
 
-interface DashboardRouteChildren {
+interface DashboardRouteRouteChildren {
   DashboardAgentsRoute: typeof DashboardAgentsRoute
   DashboardPlaygroundRoute: typeof DashboardPlaygroundRoute
   DashboardIndexRoute: typeof DashboardIndexRoute
 }
 
-const DashboardRouteChildren: DashboardRouteChildren = {
+const DashboardRouteRouteChildren: DashboardRouteRouteChildren = {
   DashboardAgentsRoute: DashboardAgentsRoute,
   DashboardPlaygroundRoute: DashboardPlaygroundRoute,
   DashboardIndexRoute: DashboardIndexRoute,
 }
 
-const DashboardRouteWithChildren = DashboardRoute._addFileChildren(
-  DashboardRouteChildren,
+const DashboardRouteRouteWithChildren = DashboardRouteRoute._addFileChildren(
+  DashboardRouteRouteChildren,
 )
 
 interface ApiAgentsIdKeysRouteChildren {
@@ -321,7 +321,7 @@ const ApiAgentsRouteWithChildren = ApiAgentsRoute._addFileChildren(
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  DashboardRoute: DashboardRouteWithChildren,
+  DashboardRouteRoute: DashboardRouteRouteWithChildren,
   ApiAgentsRoute: ApiAgentsRouteWithChildren,
   ApiMemoriesRoute: ApiMemoriesRoute,
   ApiPlaygroundRoute: ApiPlaygroundRoute,

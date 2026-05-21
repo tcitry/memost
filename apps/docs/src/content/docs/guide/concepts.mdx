@@ -7,8 +7,8 @@ sidebar:
 
 ## Organization
 
-An organization is the tenant boundary. API requests include `organizationId` so
-memory reads and writes stay scoped to the correct customer or workspace.
+An organization is the tenant boundary. In the current runtime model, this maps
+to the Clerk `ownerId` resolved for the request.
 
 ## Subject
 
@@ -23,8 +23,8 @@ retrieval by workflow.
 
 ## Namespace
 
-A namespace separates memory use cases inside the same organization. Common
-examples include `support`, `sales`, `research`, and `product`.
+A namespace separates memory use cases inside the same agent. It is derived
+from `pid` and optional `tid` for compatibility.
 
 ## Memory
 
@@ -40,5 +40,5 @@ references, ticket IDs, or other filters that should travel with the memory.
 ## Embedding
 
 An embedding is a numeric vector representation of memory content or a search
-query. Memo.st accepts caller-provided embeddings today; generated embeddings can
-be added later through Workers AI or provider adapters.
+query. The API currently generates embeddings with Workers AI before indexing
+into Vectorize.

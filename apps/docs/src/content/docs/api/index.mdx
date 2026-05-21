@@ -12,13 +12,17 @@ endpoints under `/v1/memories`.
 
 ## Memory model
 
-Every memory is scoped by four caller-provided fields:
+Every memory is scoped by the runtime boundary used by the API:
 
-- `organizationId` isolates tenant data.
-- `subjectId` identifies the user, account, project, or entity the fact is
+- `ownerId` is the Clerk user or organization boundary.
+- `agentId` identifies which agent owns or uses the memory stream.
+- `pid` separates long-running processes, projects, or workspaces.
+- `tid` narrows scope to a thread or conversation.
+- `subjectId` identifies the person, account, project, or entity the fact is
   about.
-- `agentId` records which agent created or owns the memory.
-- `namespace` separates use cases such as `support`, `sales`, or `research`.
+
+The API also keeps `namespace` as a derived compatibility field, but `pid` and
+`tid` are the primary retrieval scope.
 
 ## Base routes
 
@@ -34,14 +38,12 @@ POST /v1/memories/search
 
 ```json
 {
-  "organizationId": "org_demo",
-  "subjectId": "customer_acme",
   "agentId": "support-agent",
-  "namespace": "support",
+  "subjectId": "customer_acme",
+  "pid": "support",
   "content": "Acme prefers Slack escalation for P0 incidents."
 }
 ```
 
-Add an `embedding` array when the caller already generated a vector. Without an
-embedding, the API stores the memory in D1 and skips Vectorize indexing for that
-request.
+The API generates embeddings automatically and can extract KG triples from the
+same text when enabled.

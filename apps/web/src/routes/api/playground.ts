@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { ApiCallError, callApi } from "../lib/api-client";
+import { ApiCallError, callApi } from "../../lib/api-client";
 
 interface PlaygroundRequest {
   op: "add" | "search";

@@ -16,6 +16,7 @@
     "@astrojs/mdx": "^5.0.5",
     "@astrojs/starlight": "^0.38.0",
     "@astrojs/starlight-tailwind": "^5.0.0",
+    "@repo/design-system": "workspace:*",
     "@tailwindcss/vite": "^4.3.0",
     "astro": "^6.3.2",
     "sharp": "^0.33.5",

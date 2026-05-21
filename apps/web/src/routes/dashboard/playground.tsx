@@ -7,7 +7,7 @@ import type {
   KgTriple,
   Memory,
   SearchResult,
-} from "../lib/types";
+} from "../../lib/types";
 
 export const Route = createFileRoute("/dashboard/playground")({
   validateSearch: (search: Record<string, unknown>) => ({
@@ -340,6 +340,11 @@ function AddResultView({ result }: { result: AddResult }) {
 function SearchResultView({ result }: { result: SearchResult }) {
   return (
     <div className="w-full max-w-[85%] grid gap-2 rounded-xl border border-[rgba(31,57,42,0.14)] bg-[rgba(255,254,249,0.84)] p-3 text-xs text-[#415548]">
+      {result.strategy ? (
+        <p className="text-[10px] uppercase tracking-wide text-[#54665a]">
+          strategy {result.strategy}
+        </p>
+      ) : null}
       <div>
         <p className="font-semibold text-[#132018]">
           {result.memories.length} memor
@@ -377,6 +382,15 @@ function MemoryRow({ memory }: { memory: Memory }) {
         {memory.tid ? ` · tid ${memory.tid}` : ""}
         {typeof memory.score === "number"
           ? ` · score ${memory.score.toFixed(3)}`
+          : ""}
+        {typeof memory.semanticScore === "number"
+          ? ` · sem ${memory.semanticScore.toFixed(3)}`
+          : ""}
+        {typeof memory.keywordScore === "number"
+          ? ` · kw ${memory.keywordScore.toFixed(3)}`
+          : ""}
+        {typeof memory.graphScore === "number"
+          ? ` · kg ${memory.graphScore.toFixed(3)}`
           : ""}
       </p>
     </li>

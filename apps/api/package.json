@@ -10,16 +10,21 @@
     "deploy:prod": "WRANGLER_LOG_PATH=.wrangler/logs wrangler deploy --env production",
     "lint": "eslint . --max-warnings 0",
     "check-types": "tsc --noEmit",
-    "cf-typegen": "WRANGLER_LOG_PATH=.wrangler/logs wrangler types"
+    "cf-typegen": "WRANGLER_LOG_PATH=.wrangler/logs wrangler types",
+    "db:generate": "drizzle-kit generate --config drizzle.config.ts",
+    "db:migrate": "WRANGLER_LOG_PATH=.wrangler/logs wrangler d1 migrations apply memost-db-dev --local",
+    "db:migrate:remote": "WRANGLER_LOG_PATH=.wrangler/logs wrangler d1 migrations apply memost-db-dev --remote"
   },
   "dependencies": {
     "@hono/clerk-auth": "^3.1.1",
+    "drizzle-orm": "^0.45.2",
     "hono": "^4.12.18"
   },
   "devDependencies": {
     "@repo/eslint-config": "workspace:*",
     "@repo/typescript-config": "workspace:*",
     "@types/node": "^22.15.3",
+    "drizzle-kit": "^0.31.10",
     "eslint": "^9.39.1",
     "typescript": "5.9.2",
     "wrangler": "^4.90.1"

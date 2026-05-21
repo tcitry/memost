@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { ApiCallError, callApi } from "../lib/api-client";
+import { ApiCallError, callApi } from "../../../../lib/api-client";
 
 // /api/agents/:id/keys — list + create keys for one agent.
 export const Route = createFileRoute("/api/agents/$id/keys")({

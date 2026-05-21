@@ -1,8 +1,11 @@
 import { clerkMiddleware, getAuth } from "@hono/clerk-auth";
+import { and, eq, isNull } from "drizzle-orm";
 import type { MiddlewareHandler } from "hono";
+import { createDb } from "./db/client";
+import { apiKeys } from "./db/schema";
 import { HttpError } from "./http";
 import { sha256Hex } from "./ids";
-import type { ApiKeyRow, HonoEnv, Principal } from "./types";
+import type { HonoEnv, Principal } from "./types";
 
 // Clerk middleware bound once per app. Reads CLERK_SECRET_KEY from env.
 export const clerk = clerkMiddleware();
@@ -45,23 +48,19 @@ export const requireClerk: MiddlewareHandler<HonoEnv> = async (c, next) => {
 
 async function resolveApiKey(db: D1Database, raw: string): Promise<Principal | null> {
   const hash = await sha256Hex(raw);
-  const row = await db
-    .prepare(
-      `SELECT * FROM api_keys
-       WHERE token_hash = ?1 AND revoked_at IS NULL
-       LIMIT 1`,
-    )
-    .bind(hash)
-    .first<ApiKeyRow>();
+  const orm = createDb(db);
+  const row = await orm.query.apiKeys.findFirst({
+    where: and(eq(apiKeys.token_hash, hash), isNull(apiKeys.revoked_at)),
+  });
 
   if (!row) return null;
 
   // Best-effort last_used_at update; failure here must not break auth.
   try {
-    await db
-      .prepare(`UPDATE api_keys SET last_used_at = strftime('%Y-%m-%dT%H:%M:%fZ', 'now') WHERE id = ?1`)
-      .bind(row.id)
-      .run();
+    await orm
+      .update(apiKeys)
+      .set({ last_used_at: new Date().toISOString() })
+      .where(eq(apiKeys.id, row.id));
   } catch (err) {
     console.warn("api_key last_used_at update failed", err);
   }

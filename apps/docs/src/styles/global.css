@@ -1,8 +1,149 @@
 @layer base, starlight, theme, components, utilities;
 
+@import "@repo/design-system/globals.css";
 @import "@astrojs/starlight-tailwind";
-@import "tailwindcss/theme.css" layer(theme);
-@import "tailwindcss/utilities.css" layer(utilities);
+
+@source "../**/*.{astro,md,mdx,ts,tsx}";
+
+:root {
+  --sl-font: "Roboto Variable", Inter, ui-sans-serif, system-ui, -apple-system,
+    BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --sl-font-mono: "Roboto Mono", ui-monospace, SFMono-Regular, Menlo, Monaco,
+    Consolas, "Liberation Mono", "Courier New", monospace;
+
+  --sl-color-white: var(--background);
+  --sl-color-black: var(--foreground);
+  --sl-color-accent-low: color-mix(in oklch, var(--primary), white 76%);
+  --sl-color-accent: var(--primary);
+  --sl-color-accent-high: var(--primary-foreground);
+  --sl-color-gray-1: var(--foreground);
+  --sl-color-gray-2: var(--muted-foreground);
+  --sl-color-gray-3: color-mix(in oklch, var(--muted-foreground), white 16%);
+  --sl-color-gray-4: var(--border);
+  --sl-color-gray-5: color-mix(in oklch, var(--border), white 28%);
+  --sl-color-gray-6: var(--muted);
+  --sl-color-gray-7: var(--background);
+  --sl-color-bg: var(--background);
+  --sl-color-bg-nav: color-mix(in oklch, var(--background), white 36%);
+  --sl-color-bg-sidebar: color-mix(in oklch, var(--sidebar), white 18%);
+  --sl-color-bg-inline-code: var(--muted);
+  --sl-color-text: var(--foreground);
+  --sl-color-text-accent: var(--sidebar-primary);
+  --sl-color-hairline: var(--border);
+  --sl-color-hairline-light: color-mix(in oklch, var(--border), white 35%);
+  --sl-color-hairline-shade: color-mix(in oklch, var(--border), black 8%);
+
+  color: var(--foreground);
+  background: var(--background);
+  font-family: var(--sl-font);
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+}
+
+:root[data-theme="dark"] {
+  --sl-color-white: var(--foreground);
+  --sl-color-black: var(--background);
+  --sl-color-accent-low: color-mix(in oklch, var(--primary), black 64%);
+  --sl-color-accent: var(--primary);
+  --sl-color-accent-high: var(--primary);
+  --sl-color-gray-1: var(--foreground);
+  --sl-color-gray-2: var(--muted-foreground);
+  --sl-color-gray-3: color-mix(in oklch, var(--muted-foreground), black 12%);
+  --sl-color-gray-4: var(--border);
+  --sl-color-gray-5: color-mix(in oklch, var(--border), white 8%);
+  --sl-color-gray-6: var(--muted);
+  --sl-color-gray-7: var(--background);
+  --sl-color-bg-nav: color-mix(in oklch, var(--background), white 4%);
+  --sl-color-bg-sidebar: var(--sidebar);
+  --sl-color-bg-inline-code: var(--muted);
+  --sl-color-text-accent: var(--primary);
+  --sl-color-hairline-light: color-mix(in oklch, var(--border), white 8%);
+  --sl-color-hairline-shade: color-mix(in oklch, var(--border), black 20%);
+}
+
+body {
+  min-width: 320px;
+  margin: 0;
+  color: var(--foreground);
+  background:
+    radial-gradient(circle at top left, rgba(44, 125, 92, 0.18), transparent 36rem),
+    linear-gradient(180deg, #fbfaf6 0%, #eef2ec 100%);
+}
+
+:root[data-theme="dark"] body {
+  background:
+    radial-gradient(circle at top left, rgba(163, 143, 35, 0.14), transparent 34rem),
+    linear-gradient(180deg, var(--background) 0%, color-mix(in oklch, var(--background), black 8%) 100%);
+}
+
+a {
+  color: inherit;
+}
+
+.site-title,
+.header,
+.main-frame,
+.right-sidebar,
+.sidebar-pane {
+  font-family: var(--sl-font);
+}
+
+.site-title {
+  color: var(--foreground);
+  font-weight: 700;
+}
+
+.header {
+  border-bottom-color: var(--border);
+  background: color-mix(in oklch, var(--background), transparent 6%);
+  backdrop-filter: blur(18px);
+}
+
+.sidebar-pane {
+  border-inline-end-color: var(--sidebar-border);
+  background: var(--sl-color-bg-sidebar);
+}
+
+.right-sidebar {
+  border-inline-start-color: var(--border);
+}
+
+.content-panel {
+  color: var(--foreground);
+}
+
+.content-panel :is(h1, h2, h3, h4) {
+  color: var(--foreground);
+  letter-spacing: 0;
+}
+
+.content-panel a:not(.sl-anchor-link) {
+  color: var(--sidebar-primary);
+  text-decoration-color: color-mix(in oklch, var(--sidebar-primary), transparent 62%);
+  text-underline-offset: 0.2em;
+}
+
+.content-panel :not(pre) > code {
+  border: 1px solid var(--border);
+  border-radius: calc(var(--radius) * 0.7);
+  background: var(--muted);
+  color: var(--foreground);
+}
+
+.card,
+.link-card,
+.pagination-links a {
+  border-color: var(--border);
+  border-radius: var(--radius);
+  background: color-mix(in oklch, var(--card), transparent 6%);
+  color: var(--card-foreground);
+}
+
+.card:hover,
+.link-card:hover,
+.pagination-links a:hover {
+  border-color: var(--sidebar-ring);
+}
 
 @layer starlight {
   @media (min-width: 72rem) {

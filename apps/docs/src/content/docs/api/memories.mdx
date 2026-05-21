@@ -12,20 +12,20 @@ Content-Type: application/json
 
 ```json
 {
-  "organizationId": "org_demo",
-  "subjectId": "customer_acme",
   "agentId": "support-agent",
-  "namespace": "support",
+  "subjectId": "customer_acme",
+  "pid": "support",
+  "tid": "incident-123",
   "content": "Acme prefers Slack escalation for P0 incidents.",
   "metadata": {
     "source": "ticket-123"
-  },
-  "embedding": [0.012, 0.034, 0.056]
+  }
 }
 ```
 
-Required fields are `organizationId`, `subjectId`, `agentId`, `namespace`, and
-`content`. `metadata` and `embedding` are optional.
+Required fields are `agentId` and `content`. `subjectId`, `pid`, `tid`,
+`metadata`, and `extractKg` are optional. The API generates embeddings and
+stores them in Vectorize automatically.
 
 The response returns the created memory:
 
@@ -33,10 +33,13 @@ The response returns the created memory:
 {
   "memory": {
     "id": "7f9d0d2e-6ad1-4a3b-b608-28cbb76b3f87",
-    "organization_id": "org_demo",
+    "organization_id": "owner_demo",
+    "owner_id": "owner_demo",
     "subject_id": "customer_acme",
     "agent_id": "support-agent",
-    "namespace": "support",
+    "namespace": "support/incident-123",
+    "pid": "support",
+    "tid": "incident-123",
     "content": "Acme prefers Slack escalation for P0 incidents.",
     "metadata": {
       "source": "ticket-123"
@@ -51,21 +54,24 @@ The response returns the created memory:
 ## List memories
 
 ```http
-GET /v1/memories?organizationId=org_demo&namespace=support&limit=25
+GET /v1/memories?agentId=support-agent&pid=support&limit=25
 ```
 
-`organizationId` is required. `namespace` and `limit` are optional. Limits are
-capped at 100.
+`agentId` is optional when using an API key. `pid`, `tid`, and `limit` are
+optional. Limits are capped at 200.
 
 ```json
 {
   "memories": [
     {
       "id": "7f9d0d2e-6ad1-4a3b-b608-28cbb76b3f87",
-      "organization_id": "org_demo",
+      "organization_id": "owner_demo",
+      "owner_id": "owner_demo",
       "subject_id": "customer_acme",
       "agent_id": "support-agent",
-      "namespace": "support",
+      "namespace": "support/incident-123",
+      "pid": "support",
+      "tid": "incident-123",
       "content": "Acme prefers Slack escalation for P0 incidents.",
       "metadata": {},
       "vector_id": null,
@@ -93,37 +99,45 @@ Content-Type: application/json
 
 ```json
 {
-  "organizationId": "org_demo",
-  "namespace": "support",
-  "queryEmbedding": [0.012, 0.034, 0.056],
-  "limit": 10
+  "agentId": "support-agent",
+  "pid": "support",
+  "query": "Slack escalation for P0 incidents",
+  "limit": 10,
+  "includeKg": true
 }
 ```
 
-When `queryEmbedding` is present, the API queries Vectorize and hydrates matched
-rows from D1. When `queryEmbedding` is omitted, it falls back to recent D1
-memories for the organization and namespace.
+The API runs a hybrid retrieval plan: semantic search first, then keyword
+fallback, with KG fan-out when enabled.
 
 ```json
 {
+  "strategy": "hybrid",
   "mode": "vectorize",
-  "matches": [
+  "memories": [
     {
+      "id": "7f9d0d2e-6ad1-4a3b-b608-28cbb76b3f87",
+      "agent_id": "support-agent",
+      "pid": "support",
+      "tid": "incident-123",
+      "content": "Acme prefers Slack escalation for P0 incidents.",
+      "metadata": "{}",
+      "vector_id": "mem:7f9d0d2e-6ad1-4a3b-b608-28cbb76b3f87",
+      "created_at": "2026-05-18T13:00:00.000Z",
+      "updated_at": "2026-05-18T13:00:00.000Z",
       "score": 0.92,
-      "memory": {
-        "id": "7f9d0d2e-6ad1-4a3b-b608-28cbb76b3f87",
-        "organization_id": "org_demo",
-        "subject_id": "customer_acme",
-        "agent_id": "support-agent",
-        "namespace": "support",
-        "content": "Acme prefers Slack escalation for P0 incidents.",
-        "metadata": {},
-        "vector_id": "mem_7f9d0d2e-6ad1-4a3b-b608-28cbb76b3f87",
-        "created_at": "2026-05-18T13:00:00.000Z",
-        "updated_at": "2026-05-18T13:00:00.000Z"
-      }
+      "semanticScore": 0.92,
+      "keywordScore": 0.5,
+      "graphScore": 0.3,
+      "recencyScore": 0.96,
+      "reasons": ["semantic", "keyword"]
     }
-  ]
+  ],
+  "context": {
+    "query": "Slack escalation for P0 incidents",
+    "items": []
+  },
+  "triples": []
 }
 ```
 

@@ -1,4 +1,5 @@
 import { loadAuth, loadConfig } from "./config.js";
+import { refreshOAuthSession } from "./login-flow.js";
 
 export class ApiError extends Error {
   constructor(
@@ -23,34 +24,34 @@ export async function apiRequest<T = unknown>(opts: RequestOptions): Promise<T> 
   const config = loadConfig();
   const base = config.apiBaseUrl.replace(/\/$/, "");
   const url = `${base}${opts.path}`;
-  const auth = loadAuth();
+  let auth = loadAuth();
 
   const authMode = opts.auth ?? "auto";
-  const headers: Record<string, string> = {
-    "content-type": "application/json",
-  };
+  const useClerkAuth =
+    authMode === "clerk" ||
+    (authMode === "auto" && opts.path.startsWith("/v1/agents"));
 
-  if (authMode === "clerk" || (authMode === "auto" && opts.path.startsWith("/v1/agents"))) {
-    if (!auth.clerkToken) {
-      throw new ApiError(401, "Not signed in. Run memost login first.");
-    }
-    headers.authorization = `Bearer ${auth.clerkToken}`;
-  } else if (authMode === "api_key" || (authMode === "auto" && opts.path.startsWith("/v1/memories"))) {
-    const key = auth.apiKey;
-    if (!key) {
-      throw new ApiError(401, "No API key configured. Run memost keys use <raw> or memost login --api-key.");
-    }
-    headers.authorization = `Bearer ${key}`;
+  if (useClerkAuth && shouldRefreshOAuth(auth)) {
+    await refreshOAuthSession();
+    auth = loadAuth();
   }
 
-  const agentId = opts.agentId ?? config.defaultAgentId;
-  if (agentId) headers["x-agent-id"] = agentId;
-
-  const res = await fetch(url, {
+  const headers = buildHeaders(opts, auth);
+  let res = await fetch(url, {
     method: opts.method ?? "GET",
     headers,
     body: opts.body !== undefined ? JSON.stringify(opts.body) : undefined,
   });
+
+  if (res.status === 401 && useClerkAuth && auth.oauthRefreshToken) {
+    await refreshOAuthSession();
+    auth = loadAuth();
+    res = await fetch(url, {
+      method: opts.method ?? "GET",
+      headers: buildHeaders(opts, auth),
+      body: opts.body !== undefined ? JSON.stringify(opts.body) : undefined,
+    });
+  }
 
   const text = await res.text();
   if (!res.ok) {
@@ -66,4 +67,44 @@ export async function apiRequest<T = unknown>(opts: RequestOptions): Promise<T> 
 
   if (!text) return undefined as T;
   return JSON.parse(text) as T;
+}
+
+function buildHeaders(
+  opts: RequestOptions,
+  auth: ReturnType<typeof loadAuth>,
+): Record<string, string> {
+  const config = loadConfig();
+  const authMode = opts.auth ?? "auto";
+  const headers: Record<string, string> = {
+    "content-type": "application/json",
+  };
+
+  if (
+    authMode === "clerk" ||
+    (authMode === "auto" && opts.path.startsWith("/v1/agents"))
+  ) {
+    const token = auth.oauthAccessToken ?? auth.clerkToken;
+    if (!token) {
+      throw new ApiError(401, "Not signed in. Run memost login first.");
+    }
+    headers.authorization = `Bearer ${token}`;
+  } else if (authMode === "api_key" || (authMode === "auto" && opts.path.startsWith("/v1/memories"))) {
+    const key = auth.apiKey;
+    if (!key) {
+      throw new ApiError(401, "No API key configured. Run memost keys use <raw> or memost login --api-key.");
+    }
+    headers.authorization = `Bearer ${key}`;
+  }
+
+  const agentId = opts.agentId ?? config.defaultAgentId;
+  if (agentId) headers["x-agent-id"] = agentId;
+
+  return headers;
+}
+
+function shouldRefreshOAuth(auth: ReturnType<typeof loadAuth>): boolean {
+  if (!auth.oauthRefreshToken || !auth.oauthExpiresAt) return false;
+  const expiresAt = Date.parse(auth.oauthExpiresAt);
+  if (Number.isNaN(expiresAt)) return true;
+  return expiresAt - Date.now() < 60_000;
 }

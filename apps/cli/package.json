@@ -11,7 +11,7 @@
   ],
   "scripts": {
     "build": "tsc",
-    "dev": "tsx src/index.ts",
+    "dev": "MEMOST_CLI_OAUTH_CLIENT_ID=3ZsL5SoWi8Q3a2RP MEMOST_CLI_OAUTH_AUTHORIZE_URL=https://sharp-bird-46.clerk.accounts.dev/oauth/authorize MEMOST_CLI_OAUTH_TOKEN_URL=https://sharp-bird-46.clerk.accounts.dev/oauth/token MEMOST_CLI_OAUTH_SCOPES=\"email offline_access profile\" MEMOST_CLI_OAUTH_REDIRECT_URI=http://127.0.0.1:14587/callback tsx src/index.ts",
     "lint": "eslint . --max-warnings 0",
     "check-types": "tsc --noEmit"
   },

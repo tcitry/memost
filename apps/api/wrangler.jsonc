@@ -20,7 +20,8 @@
     "VECTOR_DIMENSIONS": "1024",
     "EMBEDDING_MODEL": "@cf/baai/bge-large-en-v1.5",
     "KG_LLM_MODEL": "@cf/meta/llama-3.1-8b-instruct",
-    "CLERK_PUBLISHABLE_KEY": "pk_test_c2hhcnAtYmlyZC00Ni5jbGVyay5hY2NvdW50cy5kZXYk"
+    "CLERK_PUBLISHABLE_KEY": "pk_test_c2hhcnAtYmlyZC00Ni5jbGVyay5hY2NvdW50cy5kZXYk",
+    "CLERK_OAUTH_TOKEN_INTROSPECTION_URL": "https://sharp-bird-46.clerk.accounts.dev/oauth/token_info"
   },
   "d1_databases": [
     {
@@ -59,7 +60,8 @@
         "VECTOR_DIMENSIONS": "1024",
         "EMBEDDING_MODEL": "@cf/baai/bge-large-en-v1.5",
         "KG_LLM_MODEL": "@cf/meta/llama-3.1-8b-instruct",
-        "CLERK_PUBLISHABLE_KEY": "pk_live_Y2xlcmsubWVtby5zdCQ"
+        "CLERK_PUBLISHABLE_KEY": "pk_live_Y2xlcmsubWVtby5zdCQ",
+        "CLERK_OAUTH_TOKEN_INTROSPECTION_URL": "https://clerk.memo.st/oauth/token_info"
       },
       "d1_databases": [
         {

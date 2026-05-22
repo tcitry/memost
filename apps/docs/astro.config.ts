@@ -16,6 +16,7 @@ export default defineConfig({
       customCss: ["./src/styles/global.css"],
       components: {
         Sidebar: "./src/components/SectionSidebar.astro",
+        SocialIcons: "./src/components/SocialIcons.astro",
       },
       social: [
         {

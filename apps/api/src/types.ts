@@ -11,6 +11,7 @@ export interface Bindings {
   KG_LLM_MODEL: string;
   CLERK_PUBLISHABLE_KEY: string;
   CLERK_SECRET_KEY: string;
+  CLERK_OAUTH_TOKEN_INTROSPECTION_URL?: string;
 }
 
 // Per-request principal. Either a Clerk-authenticated dashboard user

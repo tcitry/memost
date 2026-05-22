@@ -11,6 +11,11 @@ export interface MemostConfig {
 
 /** Local CLI auth data stored at ~/.memost/auth.json. */
 export interface MemostAuth {
+  oauthAccessToken?: string;
+  oauthRefreshToken?: string;
+  oauthExpiresAt?: string;
+  oauthScope?: string;
+  oauthTokenType?: string;
   clerkToken?: string;
   apiKey?: string;
 }
@@ -71,7 +76,15 @@ export function saveAuth(patch: Partial<MemostAuth>): MemostAuth {
 
 export function clearAuth(): MemostAuth {
   const current = loadAuth();
-  const { clerkToken: _removed, ...rest } = current;
+  const {
+    clerkToken: _removedClerk,
+    oauthAccessToken: _removedAccess,
+    oauthRefreshToken: _removedRefresh,
+    oauthExpiresAt: _removedExpires,
+    oauthScope: _removedScope,
+    oauthTokenType: _removedType,
+    ...rest
+  } = current;
   return saveAuth(rest);
 }
 

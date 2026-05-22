@@ -4,3 +4,4 @@
 # Clerk — server-side. Use sk_test_* for local + dev Worker, sk_live_* for prod.
 CLERK_SECRET_KEY=sk_test_xxx
 CLERK_PUBLISHABLE_KEY=pk_test_xxx
+CLERK_OAUTH_TOKEN_INTROSPECTION_URL=https://sharp-bird-46.clerk.accounts.dev/oauth/token_info

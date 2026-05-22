@@ -11,9 +11,10 @@ const sections = [
   { label: "CLI", href: "/cli/", icon: "$", match: "/cli/" },
 ];
 
-const activeSection = sections.find((section) =>
-  pathname === section.match || pathname.startsWith(section.match),
-);
+const activeSection =
+  pathname === "/" ? sections[0] : sections.find((section) =>
+    pathname === section.match || pathname.startsWith(section.match),
+  );
 const activeSidebar = activeSection
   ? sidebar.filter((entry) => entry.type === "group" && entry.label === activeSection.label)
   : sidebar;
@@ -66,13 +67,26 @@ const activeSidebar = activeSection
 
   .section-switcher a:hover,
   .section-switcher a:focus-visible {
-    color: var(--sl-color-white);
+    color: var(--section-switcher-active-text);
+    background: var(--section-switcher-active-bg);
   }
 
   .section-switcher a.active {
-    color: var(--sl-color-white);
-    background: var(--sl-color-bg);
-    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--sl-color-gray-5), transparent 25%);
+    color: var(--section-switcher-active-text);
+    background: var(--section-switcher-active-bg);
+    box-shadow: inset 0 0 0 1px var(--section-switcher-active-border);
+  }
+
+  :global(html:not([data-theme="dark"])) .section-switcher {
+    --section-switcher-active-bg: var(--sl-color-accent);
+    --section-switcher-active-text: #ffffff;
+    --section-switcher-active-border: color-mix(in srgb, var(--sl-color-accent), black 12%);
+  }
+
+  :global(html[data-theme="dark"]) .section-switcher {
+    --section-switcher-active-bg: var(--sl-color-accent-high);
+    --section-switcher-active-text: #000000;
+    --section-switcher-active-border: color-mix(in srgb, var(--sl-color-accent-high), white 18%);
   }
 
   .section-icon {

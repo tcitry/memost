@@ -18,6 +18,7 @@ import { die, printJson } from "./output.js";
 import {
   runApiKeyLogin,
   runBrowserLogin,
+  runOAuthRefresh,
   runTokenLogin,
 } from "./login-flow.js";
 
@@ -30,11 +31,10 @@ program
 
 program
   .command("login")
-  .description("Sign in with Clerk in the browser and save the session to ~/.memost/auth.json")
-  .option("--web-url <url>", "Dashboard URL", loadConfig().webBaseUrl)
+  .description("Sign in with Clerk OAuth + PKCE and save the session to ~/.memost/auth.json")
   .option("--token <jwt>", "Paste a Clerk JWT manually (skip the browser)")
   .option("--api-key <key>", "Save only an mst_* API key (for memory APIs)")
-  .action(async (opts: { webUrl: string; token?: string; apiKey?: string }) => {
+  .action(async (opts: { token?: string; apiKey?: string }) => {
     try {
       if (opts.apiKey) {
         runApiKeyLogin(opts.apiKey);
@@ -44,7 +44,7 @@ program
         runTokenLogin(opts.token);
         return;
       }
-      await runBrowserLogin(opts.webUrl);
+      await runBrowserLogin();
     } catch (err) {
       die(err instanceof Error ? err.message : String(err));
     }
@@ -69,6 +69,7 @@ program
     console.log(`auth:   ${authPath()}`);
     console.log(`api:    ${config.apiBaseUrl}`);
     console.log(`web:    ${config.webBaseUrl}`);
+    console.log(`oauth:  ${auth.oauthAccessToken ? "yes" : "no"}`);
     console.log(`clerk:  ${auth.clerkToken ? "yes" : "no"}`);
     console.log(`apiKey: ${auth.apiKey ? `${auth.apiKey.slice(0, 16)}…` : "no"}`);
     console.log(`agent:  ${config.defaultAgentId ?? "(unset)"}`);
@@ -79,7 +80,7 @@ program
     } catch (err) {
       console.log(`health: unreachable (${err instanceof Error ? err.message : err})`);
     }
-    if (auth.clerkToken) {
+    if (auth.oauthAccessToken || auth.clerkToken) {
       try {
         const data = await apiRequest<{ agents: unknown[] }>({
           path: "/v1/agents",
@@ -95,6 +96,18 @@ program
   });
 
 const configCmd = program.command("config").description("Local configuration");
+const authCmd = program.command("auth").description("Authentication helpers");
+
+authCmd
+  .command("refresh")
+  .description("Refresh the stored OAuth access token")
+  .action(async () => {
+    try {
+      await runOAuthRefresh();
+    } catch (err) {
+      die(err instanceof Error ? err.message : String(err));
+    }
+  });
 
 configCmd
   .command("show")
@@ -106,6 +119,10 @@ configCmd
     const masked = {
       ...c,
       authPath: authPath(),
+      oauthAccessToken: a.oauthAccessToken ? "[set]" : undefined,
+      oauthRefreshToken: a.oauthRefreshToken ? "[set]" : undefined,
+      oauthExpiresAt: a.oauthExpiresAt,
+      oauthScope: a.oauthScope,
       clerkToken: a.clerkToken ? "[set]" : undefined,
       apiKey: a.apiKey ? `${a.apiKey.slice(0, 16)}…` : undefined,
     };

@@ -16,7 +16,7 @@
     "db:migrate:remote": "WRANGLER_LOG_PATH=.wrangler/logs wrangler d1 migrations apply memost-db-dev --remote"
   },
   "dependencies": {
-    "@hono/clerk-auth": "^3.1.1",
+    "@clerk/hono": "^0.1.29",
     "drizzle-orm": "^0.45.2",
     "hono": "^4.12.18"
   },

@@ -11,27 +11,52 @@
   --sl-font-mono: "Roboto Mono", ui-monospace, SFMono-Regular, Menlo, Monaco,
     Consolas, "Liberation Mono", "Courier New", monospace;
 
-  --sl-color-white: var(--background);
-  --sl-color-black: var(--foreground);
-  --sl-color-accent-low: color-mix(in oklch, var(--primary), white 76%);
-  --sl-color-accent: var(--primary);
-  --sl-color-accent-high: var(--primary-foreground);
-  --sl-color-gray-1: var(--foreground);
-  --sl-color-gray-2: var(--muted-foreground);
-  --sl-color-gray-3: color-mix(in oklch, var(--muted-foreground), white 16%);
-  --sl-color-gray-4: var(--border);
-  --sl-color-gray-5: color-mix(in oklch, var(--border), white 28%);
-  --sl-color-gray-6: var(--muted);
-  --sl-color-gray-7: var(--background);
-  --sl-color-bg: var(--background);
+  --sl-color-white: oklch(0.148 0.004 228.8);
+  --sl-color-gray-1: oklch(0.218 0.008 223.9);
+  --sl-color-gray-2: oklch(0.338 0.012 220);
+  --sl-color-gray-3: oklch(0.56 0.021 213.5);
+  --sl-color-gray-4: oklch(0.723 0.014 214.4);
+  --sl-color-gray-5: oklch(0.86 0.012 116);
+  --sl-color-gray-6: oklch(0.956 0.014 112.4);
+  --sl-color-gray-7: oklch(0.985 0.008 96.4);
+  --sl-color-black: oklch(1 0 0);
+  --sl-color-accent-low: oklch(0.956 0.043 113);
+  --sl-color-accent: oklch(0.481 0.093 151.4);
+  --sl-color-accent-high: oklch(0.238 0.046 151.5);
+  --sl-color-text: var(--sl-color-gray-2);
+  --sl-color-text-accent: var(--sl-color-accent);
+  --sl-color-text-invert: var(--sl-color-white);
+  --sl-color-bg: var(--sl-color-black);
   --sl-color-bg-nav: color-mix(in oklch, var(--background), white 36%);
   --sl-color-bg-sidebar: color-mix(in oklch, var(--sidebar), white 18%);
-  --sl-color-bg-inline-code: var(--muted);
-  --sl-color-text: var(--foreground);
-  --sl-color-text-accent: var(--sidebar-primary);
-  --sl-color-hairline: var(--border);
-  --sl-color-hairline-light: color-mix(in oklch, var(--border), white 35%);
-  --sl-color-hairline-shade: color-mix(in oklch, var(--border), black 8%);
+  --sl-color-bg-inline-code: var(--sl-color-gray-6);
+  --sl-color-bg-accent: var(--sl-color-accent);
+  --sl-color-hairline: var(--sl-color-gray-6);
+  --sl-color-hairline-light: color-mix(in oklch, var(--sl-color-gray-6), white 35%);
+  --sl-color-hairline-shade: var(--sl-color-gray-6);
+
+  --sl-color-orange-low: oklch(0.94 0.044 77);
+  --sl-color-orange: oklch(0.68 0.145 66);
+  --sl-color-orange-high: oklch(0.31 0.071 63);
+  --sl-color-green-low: oklch(0.94 0.047 145);
+  --sl-color-green: oklch(0.54 0.113 151);
+  --sl-color-green-high: oklch(0.25 0.06 151);
+  --sl-color-blue-low: oklch(0.94 0.026 232);
+  --sl-color-blue: oklch(0.55 0.1 232);
+  --sl-color-blue-high: oklch(0.29 0.066 232);
+  --sl-color-purple-low: oklch(0.94 0.032 293);
+  --sl-color-purple: oklch(0.57 0.135 293);
+  --sl-color-purple-high: oklch(0.32 0.09 293);
+  --sl-color-red-low: oklch(0.94 0.038 27);
+  --sl-color-red: oklch(0.58 0.2 27);
+  --sl-color-red-high: oklch(0.32 0.13 27);
+
+  --sl-badge-default-text: var(--sl-color-black);
+  --sl-badge-note-text: var(--sl-color-black);
+  --sl-badge-danger-text: var(--sl-color-black);
+  --sl-badge-success-text: var(--sl-color-black);
+  --sl-badge-caution-text: var(--sl-color-black);
+  --sl-badge-tip-text: var(--sl-color-black);
 
   color: var(--foreground);
   background: var(--background);
@@ -41,24 +66,80 @@
 }
 
 :root[data-theme="dark"] {
-  --sl-color-white: var(--foreground);
-  --sl-color-black: var(--background);
-  --sl-color-accent-low: color-mix(in oklch, var(--primary), black 64%);
-  --sl-color-accent: var(--primary);
-  --sl-color-accent-high: var(--primary);
-  --sl-color-gray-1: var(--foreground);
-  --sl-color-gray-2: var(--muted-foreground);
-  --sl-color-gray-3: color-mix(in oklch, var(--muted-foreground), black 12%);
-  --sl-color-gray-4: var(--border);
-  --sl-color-gray-5: color-mix(in oklch, var(--border), white 8%);
-  --sl-color-gray-6: var(--muted);
-  --sl-color-gray-7: var(--background);
+  color-scheme: dark;
+  --background: oklch(0.148 0.004 228.8);
+  --foreground: oklch(0.987 0.002 197.1);
+  --card: oklch(0.218 0.008 223.9);
+  --card-foreground: oklch(0.987 0.002 197.1);
+  --popover: oklch(0.218 0.008 223.9);
+  --popover-foreground: oklch(0.987 0.002 197.1);
+  --primary: oklch(0.795 0.184 86.047);
+  --primary-foreground: oklch(0.421 0.095 57.708);
+  --secondary: oklch(0.274 0.006 286.033);
+  --secondary-foreground: oklch(0.985 0 0);
+  --muted: oklch(0.275 0.011 216.9);
+  --muted-foreground: oklch(0.723 0.014 214.4);
+  --accent: oklch(0.275 0.011 216.9);
+  --accent-foreground: oklch(0.987 0.002 197.1);
+  --destructive: oklch(0.704 0.191 22.216);
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 15%);
+  --ring: oklch(0.56 0.021 213.5);
+  --sidebar: oklch(0.218 0.036 151.3);
+  --sidebar-foreground: oklch(0.958 0.018 103.5);
+  --sidebar-primary: oklch(0.793 0.155 91.4);
+  --sidebar-primary-foreground: oklch(0.218 0.036 151.3);
+  --sidebar-accent: oklch(0.286 0.046 151.6);
+  --sidebar-accent-foreground: oklch(0.958 0.018 103.5);
+  --sidebar-border: oklch(1 0 0 / 12%);
+  --sidebar-ring: oklch(0.793 0.155 91.4);
+
+  --sl-color-white: oklch(0.987 0.002 197.1);
+  --sl-color-gray-1: oklch(0.935 0.005 197.1);
+  --sl-color-gray-2: oklch(0.78 0.014 214.4);
+  --sl-color-gray-3: oklch(0.66 0.018 214.4);
+  --sl-color-gray-4: oklch(0.42 0.018 216.9);
+  --sl-color-gray-5: oklch(0.31 0.016 216.9);
+  --sl-color-gray-6: oklch(0.218 0.008 223.9);
+  --sl-color-gray-7: oklch(0.18 0.006 226);
+  --sl-color-black: oklch(0.148 0.004 228.8);
+  --sl-color-accent-low: oklch(0.28 0.056 151.6);
+  --sl-color-accent: oklch(0.793 0.155 91.4);
+  --sl-color-accent-high: oklch(0.93 0.11 94);
+  --sl-color-text: var(--sl-color-gray-2);
+  --sl-color-text-accent: var(--sl-color-accent-high);
+  --sl-color-text-invert: var(--sl-color-black);
+  --sl-color-bg: var(--sl-color-black);
   --sl-color-bg-nav: color-mix(in oklch, var(--background), white 4%);
   --sl-color-bg-sidebar: var(--sidebar);
-  --sl-color-bg-inline-code: var(--muted);
-  --sl-color-text-accent: var(--primary);
-  --sl-color-hairline-light: color-mix(in oklch, var(--border), white 8%);
-  --sl-color-hairline-shade: color-mix(in oklch, var(--border), black 20%);
+  --sl-color-bg-inline-code: var(--sl-color-gray-5);
+  --sl-color-bg-accent: var(--sl-color-accent-high);
+  --sl-color-hairline: var(--sl-color-gray-6);
+  --sl-color-hairline-light: var(--sl-color-gray-5);
+  --sl-color-hairline-shade: var(--sl-color-black);
+
+  --sl-color-orange-low: oklch(0.26 0.055 66);
+  --sl-color-orange: oklch(0.77 0.15 72);
+  --sl-color-orange-high: oklch(0.9 0.07 78);
+  --sl-color-green-low: oklch(0.25 0.06 151);
+  --sl-color-green: oklch(0.72 0.15 145);
+  --sl-color-green-high: oklch(0.89 0.08 145);
+  --sl-color-blue-low: oklch(0.26 0.052 232);
+  --sl-color-blue: oklch(0.72 0.12 232);
+  --sl-color-blue-high: oklch(0.9 0.055 232);
+  --sl-color-purple-low: oklch(0.27 0.065 293);
+  --sl-color-purple: oklch(0.74 0.13 293);
+  --sl-color-purple-high: oklch(0.9 0.065 293);
+  --sl-color-red-low: oklch(0.27 0.075 27);
+  --sl-color-red: oklch(0.7 0.19 27);
+  --sl-color-red-high: oklch(0.9 0.065 27);
+
+  --sl-badge-default-text: var(--sl-color-white);
+  --sl-badge-note-text: var(--sl-color-white);
+  --sl-badge-danger-text: var(--sl-color-white);
+  --sl-badge-success-text: var(--sl-color-white);
+  --sl-badge-caution-text: var(--sl-color-white);
+  --sl-badge-tip-text: var(--sl-color-white);
 }
 
 body {
@@ -135,14 +216,63 @@ a {
 .pagination-links a {
   border-color: var(--border);
   border-radius: var(--radius);
-  background: color-mix(in oklch, var(--card), transparent 6%);
-  color: var(--card-foreground);
+  background: var(--sl-color-black);
+  color: var(--sl-color-text);
 }
 
 .card:hover,
 .link-card:hover,
 .pagination-links a:hover {
   border-color: var(--sidebar-ring);
+}
+
+.card .title,
+.link-card .title,
+.pagination-links a {
+  color: var(--sl-color-white);
+}
+
+.card .body,
+.link-card .description {
+  color: var(--sl-color-text);
+}
+
+.sl-badge {
+  color: var(--sl-color-text-badge);
+}
+
+.starlight-aside {
+  color: var(--sl-color-white);
+}
+
+html:not([data-theme="dark"]) .sidebar-content a[aria-current="page"],
+html:not([data-theme="dark"]) .sidebar-content a[aria-current="page"]:hover,
+html:not([data-theme="dark"]) .sidebar-content a[aria-current="page"]:focus,
+html:not([data-theme="dark"]) .isMobile a[aria-current="true"],
+html:not([data-theme="dark"]) .isMobile a[aria-current="true"]:hover,
+html:not([data-theme="dark"]) .isMobile a[aria-current="true"]:focus {
+  color: #ffffff;
+}
+
+html[data-theme="dark"] .sidebar-content a[aria-current="page"],
+html[data-theme="dark"] .sidebar-content a[aria-current="page"]:hover,
+html[data-theme="dark"] .sidebar-content a[aria-current="page"]:focus,
+html[data-theme="dark"] .isMobile a[aria-current="true"],
+html[data-theme="dark"] .isMobile a[aria-current="true"]:hover,
+html[data-theme="dark"] .isMobile a[aria-current="true"]:focus {
+  color: #000000;
+}
+
+[data-theme="light"] .hero .sl-link-button.primary,
+[data-theme="light"] .hero .sl-link-button.primary:hover,
+[data-theme="light"] .hero .sl-link-button.primary:focus-visible {
+  color: #ffffff;
+}
+
+[data-theme="dark"] .hero .sl-link-button.primary,
+[data-theme="dark"] .hero .sl-link-button.primary:hover,
+[data-theme="dark"] .hero .sl-link-button.primary:focus-visible {
+  color: #000000;
 }
 
 @layer starlight {

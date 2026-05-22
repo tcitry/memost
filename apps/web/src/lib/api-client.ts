@@ -1,7 +1,7 @@
 // Server-side helper that proxies authenticated requests from the
 // dashboard worker to the memo.st API worker. The Clerk JWT is
-// forwarded as a Bearer token; the API worker re-verifies it via
-// @hono/clerk-auth, so we don't need shared secrets between workers.
+// forwarded as a Bearer token; the API worker re-verifies it with Clerk, so we
+// don't need shared secrets between workers.
 
 import { auth } from "@clerk/tanstack-react-start/server";
 

@@ -25,7 +25,7 @@ permissions.
 memost config set api-url http://127.0.0.1:8787
 memost config set web-url http://localhost:3000
 
-# 2. Sign in with Clerk. The CLI opens a browser and receives the result through a local callback.
+# 2. Sign in with Clerk OAuth + PKCE.
 memost login
 
 # 3. Create an agent. This also saves defaultAgentId and apiKey locally.
@@ -47,14 +47,15 @@ memost memories add -c "hello" -a agent_xxx
 
 | Command | Description |
 |------|------|
-| `memost login` | Sign in with Clerk in the browser and write auth data to `~/.memost/auth.json` |
+| `memost login` | Sign in with Clerk OAuth + PKCE and write auth data to `~/.memost/auth.json` |
 | `memost login --token <jwt>` | Paste a Clerk JWT manually |
 | `memost login --api-key <mst_*>` | Save only a memory API key |
 | `memost logout` | Clear local auth data |
+| `memost auth refresh` | Refresh the stored OAuth access token |
 | `memost whoami` | Show configuration, `/health`, and agent access |
 | `memost config show` | Show masked local configuration |
 | `memost config set api-url <url>` | Set the API worker URL |
-| `memost config set web-url <url>` | Set the Dashboard URL used for login |
+| `memost config set web-url <url>` | Set the Dashboard URL stored in local config |
 
 ## agents
 
@@ -107,3 +108,24 @@ owner (Clerk user / org)
 
 This matches the D1 fields used by `agents`, `memories.pid`, `memories.tid`,
 and `kg_triples`.
+
+## OAuth configuration
+
+The CLI reads OAuth settings from environment variables. A typical local setup
+looks like this:
+
+```bash
+export MEMOST_CLI_OAUTH_CLIENT_ID=3ZsL5SoWi8Q3a2RP
+export MEMOST_CLI_OAUTH_AUTHORIZE_URL=https://sharp-bird-46.clerk.accounts.dev/oauth/authorize
+export MEMOST_CLI_OAUTH_TOKEN_URL=https://sharp-bird-46.clerk.accounts.dev/oauth/token
+export MEMOST_CLI_OAUTH_SCOPES="email offline_access profile"
+export MEMOST_CLI_OAUTH_REDIRECT_URI=http://127.0.0.1:14587/callback
+```
+
+Use the same mechanism for production, but point the variables at your
+production Clerk OAuth application and registered redirect URI.
+
+The CLI stores `access_token`, `refresh_token`, expiration time, scope, and
+token type in `~/.memost/auth.json`. Commands refresh the OAuth access token
+automatically when it is close to expiry, and `memost auth refresh` can refresh
+it manually.

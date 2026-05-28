@@ -21,17 +21,17 @@ permissions.
 ## Quick start
 
 ```bash
-# 1. Configure API and Dashboard URLs. The local defaults are usually enough.
-memost config set api-url http://127.0.0.1:8787
-memost config set web-url http://localhost:3000
-
-# 2. Sign in with Clerk OAuth + PKCE.
+# 1. Sign in with Clerk OAuth + PKCE. Defaults to memo.st / api.memo.st.
 memost login
 
-# 3. Create an agent. This also saves defaultAgentId and apiKey locally.
+# Use a test or local web URL to bind later commands to the matching API URL.
+memost login --url memost.iuvdev.com
+memost login --url http://localhost:3000
+
+# 2. Create an agent. This also saves defaultAgentId and apiKey locally.
 memost agents create -n "dev-agent"
 
-# 4. Write and search memories.
+# 3. Write and search memories.
 memost memories add -c "The user prefers dark mode."
 memost memories search -q "theme"
 ```
@@ -48,7 +48,7 @@ memost memories add -c "hello" -a agent_xxx
 | Command | Description |
 |------|------|
 | `memost login` | Sign in with Clerk OAuth + PKCE and write auth data to `~/.memost/auth.json` |
-| `memost login --token <jwt>` | Paste a Clerk JWT manually |
+| `memost login --url <url>` | Sign in and bind the CLI to a web/API environment |
 | `memost login --api-key <mst_*>` | Save only a memory API key |
 | `memost logout` | Clear local auth data |
 | `memost auth refresh` | Refresh the stored OAuth access token |
@@ -129,3 +129,10 @@ The CLI stores `access_token`, `refresh_token`, expiration time, scope, and
 token type in `~/.memost/auth.json`. Commands refresh the OAuth access token
 automatically when it is close to expiry, and `memost auth refresh` can refresh
 it manually.
+
+`memost login` also writes the selected environment into
+`~/.memost/config.json`. The default environment is `https://memo.st` with
+`https://api.memo.st`. Passing `--url memost.iuvdev.com` stores
+`https://memost.iuvdev.com` and `https://memost-api.iuvdev.com`; passing
+`--url http://localhost:3000` stores `http://localhost:3000` and
+`http://127.0.0.1:8787`.

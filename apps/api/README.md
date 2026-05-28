@@ -1,9 +1,9 @@
 # memo.st API Worker
 
 Hono service for memo.st agent-memory APIs. It runs on Cloudflare Workers and
-uses D1 (durable metadata, knowledge-graph triples), Vectorize (semantic
-retrieval) and Workers AI (BGE embeddings + Llama for KG extraction).
-No external API keys required.
+uses D1 (durable metadata, knowledge-graph triples, eval indexes), Queues
+(async eval execution), Vectorize (semantic retrieval) and Workers AI (BGE
+embeddings, KG extraction, and eval judging).
 
 ## Scripts
 
@@ -21,6 +21,8 @@ Create the resources before production deploy:
 ```bash
 wrangler d1 create memost-db-dev
 wrangler vectorize create memost-vector-dev --dimensions 1024 --metric cosine
+wrangler queues create memost-eval-dev
+wrangler queues create memost-eval-dlq-dev
 ```
 
 Apply D1 migrations:
@@ -53,6 +55,29 @@ Two principal kinds, both resolved by `requirePrincipal`:
 - `POST /v1/memories` — body `{ content, pid?, tid?, metadata?, extractKg? }`
 - `POST /v1/memories/search` — body `{ query, pid?, tid?, limit?, includeKg? }`
 - `DELETE /v1/memories/:id`
+- `GET  /v1/evals/datasets`
+- `POST /v1/evals/datasets/locomo/import` — import local LoCoMo JSON into eval indexes
+- `GET  /v1/evals/datasets/:slug/items?sampleId=…&category=…`
+- `POST /v1/evals/runs` — start full, batch, or single online eval
+- `GET  /v1/evals/runs`
+- `GET  /v1/evals/runs/:id`
+
+LoCoMo dataset D1 helpers:
+
+```bash
+pnpm dataset:build-locomo
+pnpm dataset:upload-locomo
+```
+
+`dataset:upload-locomo` creates or updates the shared read-only benchmark
+database `memost-std-benchmark-dataset`. LoCoMo data is stored under
+`locomo_*` tables; future benchmarks such as LongMemEval can be added to the
+same D1 database with their own table prefix instead of creating dev/prod
+dataset copies.
+
+Eval runs call the user-supplied OpenAI-compatible `/chat/completions` endpoint
+for candidate answers, then judge with Workers AI. Caller endpoint keys are kept
+in `eval_run_secrets` only while the queue run is active.
 
 Vector and KG triple stores are kept in sync. Search runs vector first
 (filtered by `agent_id` + optional `pid`/`tid`), falls back to a D1 LIKE

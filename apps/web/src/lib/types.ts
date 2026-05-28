@@ -83,3 +83,53 @@ export interface AddResult {
   memory: Memory;
   triples: KgTriple[];
 }
+
+export interface EvalDataset {
+  id: string;
+  slug: string;
+  name: string;
+  version: string;
+  storage_key: string;
+  sample_count: number;
+  question_count: number;
+  metadata: string;
+  imported_at: string;
+  updated_at: string;
+}
+
+export interface EvalRun {
+  id: string;
+  owner_id: string;
+  dataset_id: string;
+  mode: "full" | "batch" | "single" | string;
+  status: "queued" | "running" | "completed" | "failed" | "partial" | string;
+  endpoint_url: string;
+  endpoint_model: string;
+  judge_url: string;
+  judge_model: string;
+  total_items: number;
+  completed_items: number;
+  failed_items: number;
+  average_score: number | null;
+  config: string;
+  created_at: string;
+  updated_at: string;
+  completed_at: string | null;
+}
+
+export interface EvalResult {
+  id: string;
+  item_id: string;
+  status: string;
+  candidate_answer: string;
+  judge_score: number | null;
+  judge_passed: boolean | null;
+  judge_reason: string;
+  error: string | null;
+  duration_ms: number | null;
+  updated_at: string;
+  question: string;
+  expected_answer: string;
+  sample_id: string;
+  category: number | null;
+}

@@ -184,10 +184,17 @@ async function hydrateSemanticRows(
 }
 
 async function queryKeyword(db: D1Database, req: RetrievalRequest): Promise<MemoryRow[]> {
+  // Sanitize SQL LIKE wildcards (SQLite has no default ESCAPE) and
+  // short-circuit overly broad queries that would scan the table.
+  const cleaned = req.query.trim().toLowerCase();
+  if (cleaned.length < 2) return [];
+  const sanitized = cleaned.replace(/[%_]/g, " ").trim();
+  if (sanitized.length < 2) return [];
+
   const orm = createDb(db);
   const filters = [
     eq(memories.agent_id, req.agentId),
-    like(memories.content_lower, `%${req.query.toLowerCase()}%`),
+    like(memories.content_lower, `%${sanitized}%`),
   ];
   if (req.pid) filters.push(eq(memories.pid, req.pid));
   if (req.tid) filters.push(eq(memories.tid, req.tid));
@@ -248,9 +255,16 @@ function mergeRanked(
   ranked.set(row.id, current);
 }
 
+// Sum of all weights that contribute to a memory's blended score.
+// Used to normalize the final value into [0, 1] so the dashboard can
+// render it as "match strength" without needing prior-knowledge of the
+// internal weighting.
+const SCORE_WEIGHT_TOTAL = 0.7 + 0.45 + 0.35 + 0.12 + 0.08;
+
 function finalizeRank(item: RankedMemory): MemoryMatch {
   const scopeBoost = item.row.tid ? 0.08 : 0.04;
-  const score = item.score + item.recencyScore * 0.12 + scopeBoost;
+  const raw = item.score + item.recencyScore * 0.12 + scopeBoost;
+  const score = Math.max(0, Math.min(1, raw / SCORE_WEIGHT_TOTAL));
   return {
     ...item.row,
     score,

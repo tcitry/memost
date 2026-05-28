@@ -83,7 +83,7 @@ function buildHeaders(
     authMode === "clerk" ||
     (authMode === "auto" && opts.path.startsWith("/v1/agents"))
   ) {
-    const token = auth.oauthAccessToken ?? auth.clerkToken;
+    const token = auth.oauthAccessToken;
     if (!token) {
       throw new ApiError(401, "Not signed in. Run memost login first.");
     }

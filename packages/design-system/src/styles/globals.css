@@ -1,6 +1,5 @@
 @import "tailwindcss";
 @import "tw-animate-css";
-@import "@fontsource-variable/roboto";
 
 @custom-variant dark (&:is(.dark *));
 @source "../**/*.{ts,tsx}";
@@ -45,42 +44,53 @@
   --radius-2xl: calc(var(--radius) * 1.8);
   --radius-3xl: calc(var(--radius) * 2.2);
   --radius-4xl: calc(var(--radius) * 2.6);
-  --font-sans: "Roboto Variable", sans-serif;
+  --font-sans: "Camera Plain Variable", ui-sans-serif, system-ui, -apple-system,
+    BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
 
 :root {
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.148 0.004 228.8);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.148 0.004 228.8);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.148 0.004 228.8);
-  --primary: oklch(0.852 0.199 91.936);
-  --primary-foreground: oklch(0.421 0.095 57.708);
-  --secondary: oklch(0.967 0.001 286.375);
-  --secondary-foreground: oklch(0.21 0.006 285.885);
-  --muted: oklch(0.963 0.002 197.1);
-  --muted-foreground: oklch(0.56 0.021 213.5);
-  --accent: oklch(0.963 0.002 197.1);
-  --accent-foreground: oklch(0.218 0.008 223.9);
+  --background: #f7f4ed;
+  --foreground: #1c1c1c;
+  --card: #f7f4ed;
+  --card-foreground: #1c1c1c;
+  --popover: #f7f4ed;
+  --popover-foreground: #1c1c1c;
+  --primary: #1c1c1c;
+  --primary-foreground: #fcfbf8;
+  --secondary: rgba(28, 28, 28, 0.04);
+  --secondary-foreground: #1c1c1c;
+  --muted: rgba(28, 28, 28, 0.04);
+  --muted-foreground: #5f5f5d;
+  --accent: rgba(28, 28, 28, 0.04);
+  --accent-foreground: #1c1c1c;
   --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.925 0.005 214.3);
-  --input: oklch(0.925 0.005 214.3);
-  --ring: oklch(0.723 0.014 214.4);
+  --border: #eceae4;
+  --input: #eceae4;
+  --ring: rgba(59, 130, 246, 0.5);
   --chart-1: oklch(0.811 0.111 293.571);
   --chart-2: oklch(0.606 0.25 292.717);
   --chart-3: oklch(0.541 0.281 293.009);
   --chart-4: oklch(0.491 0.27 292.581);
   --chart-5: oklch(0.432 0.232 292.759);
   --radius: 0.45rem;
-  --sidebar: oklch(0.985 0.008 96.4);
-  --sidebar-foreground: oklch(0.238 0.046 151.5);
-  --sidebar-primary: oklch(0.354 0.074 151.1);
-  --sidebar-primary-foreground: oklch(0.982 0.014 95.6);
-  --sidebar-accent: oklch(0.956 0.014 112.4);
-  --sidebar-accent-foreground: oklch(0.28 0.056 151.6);
-  --sidebar-border: oklch(0.89 0.018 117.2);
-  --sidebar-ring: oklch(0.481 0.093 151.4);
+  --sidebar: #f7f4ed;
+  --sidebar-foreground: rgba(28, 28, 28, 0.82);
+  --sidebar-primary: #1c1c1c;
+  --sidebar-primary-foreground: #fcfbf8;
+  --sidebar-accent: rgba(28, 28, 28, 0.04);
+  --sidebar-accent-foreground: #1c1c1c;
+  --sidebar-border: #eceae4;
+  --sidebar-ring: rgba(59, 130, 246, 0.5);
+  --memost-cream: #f7f4ed;
+  --memost-charcoal: #1c1c1c;
+  --memost-off-white: #fcfbf8;
+  --memost-border: #eceae4;
+  --memost-muted: #5f5f5d;
+  --memost-button-shadow:
+    rgba(255, 255, 255, 0.2) 0px 0.5px 0px 0px inset,
+    rgba(0, 0, 0, 0.2) 0px 0px 0px 0.5px inset,
+    rgba(0, 0, 0, 0.05) 0px 1px 2px 0px;
+  --memost-focus-shadow: rgba(0, 0, 0, 0.1) 0px 4px 12px;
 }
 
 .dark {

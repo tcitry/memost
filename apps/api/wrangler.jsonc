@@ -29,6 +29,13 @@
       "database_name": "memost-db-dev",
       "database_id": "04c61e32-2e5f-4e93-9458-0c921eb1c92f",
       "migrations_dir": "migrations"
+    },
+    {
+      "binding": "BENCHMARK_DATASET_DB",
+      "database_name": "memost-std-benchmark-dataset",
+      "database_id": "2d840e83-dcab-4537-adb2-5df631366f00",
+      "preview_database_id": "2d840e83-dcab-4537-adb2-5df631366f00",
+      "remote": true
     }
   ],
   "vectorize": [
@@ -38,6 +45,23 @@
       "remote": true
     }
   ],
+  "queues": {
+    "producers": [
+      {
+        "binding": "EVAL_QUEUE",
+        "queue": "memost-eval-dev"
+      }
+    ],
+    "consumers": [
+      {
+        "queue": "memost-eval-dev",
+        "max_batch_size": 1,
+        "max_batch_timeout": 5,
+        "dead_letter_queue": "memost-eval-dlq-dev",
+        "retry_delay": 60
+      }
+    ]
+  },
   "ai": {
     "binding": "AI"
   },
@@ -69,6 +93,13 @@
           "database_name": "memost-db-prod",
           "database_id": "7e536830-1033-4ac5-ad60-6cbc3eaa4bcc",
           "migrations_dir": "migrations"
+        },
+        {
+          "binding": "BENCHMARK_DATASET_DB",
+          "database_name": "memost-std-benchmark-dataset",
+          "database_id": "2d840e83-dcab-4537-adb2-5df631366f00",
+          "preview_database_id": "2d840e83-dcab-4537-adb2-5df631366f00",
+          "remote": true
         }
       ],
       "vectorize": [
@@ -78,6 +109,23 @@
           "remote": true
         }
       ],
+      "queues": {
+        "producers": [
+          {
+            "binding": "EVAL_QUEUE",
+            "queue": "memost-eval-prod"
+          }
+        ],
+        "consumers": [
+          {
+            "queue": "memost-eval-prod",
+            "max_batch_size": 1,
+            "max_batch_timeout": 5,
+            "dead_letter_queue": "memost-eval-dlq-prod",
+            "retry_delay": 60
+          }
+        ]
+      },
       "ai": {
         "binding": "AI"
       }

@@ -16,26 +16,25 @@ export interface MemostAuth {
   oauthExpiresAt?: string;
   oauthScope?: string;
   oauthTokenType?: string;
-  clerkToken?: string;
   apiKey?: string;
 }
 
-const CONFIG_DIR = path.join(os.homedir(), ".memost");
-const CONFIG_PATH = path.join(CONFIG_DIR, "config.json");
-const AUTH_PATH = path.join(CONFIG_DIR, "auth.json");
-
 const DEFAULTS: MemostConfig = {
-  apiBaseUrl: "http://127.0.0.1:8787",
-  webBaseUrl: "http://localhost:3000",
+  apiBaseUrl: "https://api.memo.st",
+  webBaseUrl: "https://memo.st",
 };
 
+function configDir(): string {
+  return process.env.MEMOST_HOME ?? path.join(os.homedir(), ".memost");
+}
+
 export function configPath(): string {
-  return CONFIG_PATH;
+  return path.join(configDir(), "config.json");
 }
 
 export function loadConfig(): MemostConfig {
   try {
-    const raw = fs.readFileSync(CONFIG_PATH, "utf8");
+    const raw = fs.readFileSync(configPath(), "utf8");
     const parsed = JSON.parse(raw) as Partial<MemostConfig>;
     return { ...DEFAULTS, ...parsed };
   } catch {
@@ -45,20 +44,20 @@ export function loadConfig(): MemostConfig {
 
 export function saveConfig(patch: Partial<MemostConfig>): MemostConfig {
   const next = { ...loadConfig(), ...patch };
-  fs.mkdirSync(CONFIG_DIR, { recursive: true, mode: 0o700 });
-  fs.writeFileSync(CONFIG_PATH, `${JSON.stringify(next, null, 2)}\n`, {
+  fs.mkdirSync(configDir(), { recursive: true, mode: 0o700 });
+  fs.writeFileSync(configPath(), `${JSON.stringify(next, null, 2)}\n`, {
     mode: 0o600,
   });
   return next;
 }
 
 export function authPath(): string {
-  return AUTH_PATH;
+  return path.join(configDir(), "auth.json");
 }
 
 export function loadAuth(): MemostAuth {
   try {
-    const raw = fs.readFileSync(AUTH_PATH, "utf8");
+    const raw = fs.readFileSync(authPath(), "utf8");
     return JSON.parse(raw) as MemostAuth;
   } catch {
     return {};
@@ -67,29 +66,31 @@ export function loadAuth(): MemostAuth {
 
 export function saveAuth(patch: Partial<MemostAuth>): MemostAuth {
   const next = { ...loadAuth(), ...patch };
-  fs.mkdirSync(CONFIG_DIR, { recursive: true, mode: 0o700 });
-  fs.writeFileSync(AUTH_PATH, `${JSON.stringify(next, null, 2)}\n`, {
-    mode: 0o600,
-  });
+  writeAuth(next);
   return next;
 }
 
+function writeAuth(next: MemostAuth): void {
+  fs.mkdirSync(configDir(), { recursive: true, mode: 0o700 });
+  fs.writeFileSync(authPath(), `${JSON.stringify(next, null, 2)}\n`, {
+    mode: 0o600,
+  });
+}
+
 export function clearAuth(): MemostAuth {
-  const current = loadAuth();
-  const {
-    clerkToken: _removedClerk,
-    oauthAccessToken: _removedAccess,
-    oauthRefreshToken: _removedRefresh,
-    oauthExpiresAt: _removedExpires,
-    oauthScope: _removedScope,
-    oauthTokenType: _removedType,
-    ...rest
-  } = current;
-  return saveAuth(rest);
+  const next = { ...loadAuth() };
+  delete next.oauthAccessToken;
+  delete next.oauthRefreshToken;
+  delete next.oauthExpiresAt;
+  delete next.oauthScope;
+  delete next.oauthTokenType;
+  writeAuth(next);
+  return next;
 }
 
 export function clearApiKey(): MemostAuth {
-  const current = loadAuth();
-  const { apiKey: _removed, ...rest } = current;
-  return saveAuth(rest);
+  const next = { ...loadAuth() };
+  delete next.apiKey;
+  writeAuth(next);
+  return next;
 }

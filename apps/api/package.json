@@ -9,8 +9,12 @@
     "deploy": "WRANGLER_LOG_PATH=.wrangler/logs wrangler deploy",
     "deploy:prod": "WRANGLER_LOG_PATH=.wrangler/logs wrangler deploy --env production",
     "lint": "eslint . --max-warnings 0",
+    "test": "vitest",
+    "test:run": "vitest run",
     "check-types": "tsc --noEmit",
     "cf-typegen": "WRANGLER_LOG_PATH=.wrangler/logs wrangler types",
+    "dataset:build-locomo": "node ../../scripts/build-locomo-dataset-sql.mjs",
+    "dataset:upload-locomo": "node ../../scripts/upload-locomo-dataset.mjs",
     "db:generate": "drizzle-kit generate --config drizzle.config.ts",
     "db:migrate": "WRANGLER_LOG_PATH=.wrangler/logs wrangler d1 migrations apply memost-db-dev --local",
     "db:migrate:remote": "WRANGLER_LOG_PATH=.wrangler/logs wrangler d1 migrations apply memost-db-dev --remote"

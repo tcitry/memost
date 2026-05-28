@@ -5,6 +5,7 @@ import { createDb } from "../db/client";
 import { agents, apiKeys } from "../db/schema";
 import { HttpError, readJson } from "../http";
 import { generateApiKey, newAgentId, newApiKeyId } from "../ids";
+import { deleteAgentCascade } from "../memory-service";
 import type { HonoEnv } from "../types";
 
 // /v1/agents/* — Clerk session required. API keys cannot manage other
@@ -95,6 +96,10 @@ app.get("/:id", async (c) => {
   return c.json({ agent });
 });
 
+// D1 has FK declarations but does not enforce them by default, so we
+// walk every dependent table explicitly. Order: vectors + memory/kg
+// rows first (via deleteAgentCascade), then api_keys, finally the
+// agent itself.
 app.delete("/:id", async (c) => {
   const { ownerId } = c.var.principal;
   const id = c.req.param("id");
@@ -104,6 +109,9 @@ app.delete("/:id", async (c) => {
     columns: { id: true },
   });
   if (!existing) throw new HttpError(404, "Agent not found");
+
+  await deleteAgentCascade({ env: c.env, agentId: id });
+  await db.delete(apiKeys).where(eq(apiKeys.agent_id, id));
   await db.delete(agents).where(and(eq(agents.id, id), eq(agents.owner_id, ownerId)));
   return c.json({ ok: true });
 });

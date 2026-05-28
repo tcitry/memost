@@ -12,13 +12,23 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as DashboardRouteRouteImport } from './routes/dashboard/route'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as DashboardIndexRouteImport } from './routes/dashboard/index'
+import { Route as DatasetsLocomoRouteImport } from './routes/datasets/locomo'
+import { Route as DatasetsLmeV2RouteImport } from './routes/datasets/lme-v2'
+import { Route as DatasetsLmeRouteImport } from './routes/datasets/lme'
 import { Route as DashboardPlaygroundRouteImport } from './routes/dashboard/playground'
+import { Route as DashboardEvalsRouteImport } from './routes/dashboard/evals'
 import { Route as DashboardAgentsRouteImport } from './routes/dashboard/agents'
 import { Route as CliLoginRouteImport } from './routes/cli/login'
 import { Route as ApiPlaygroundRouteImport } from './routes/api/playground'
 import { Route as ApiMemoriesRouteImport } from './routes/api/memories'
 import { Route as ApiAgentsRouteImport } from './routes/api/agents'
+import { Route as ApiEvalsRunsRouteImport } from './routes/api/evals/runs'
+import { Route as ApiEvalsDatasetsRouteImport } from './routes/api/evals/datasets'
+import { Route as ApiDatasetsLocomoRouteImport } from './routes/api/datasets/locomo'
+import { Route as ApiDatasetsLmeV2RouteImport } from './routes/api/datasets/lme-v2'
+import { Route as ApiDatasetsLmeRouteImport } from './routes/api/datasets/lme'
 import { Route as ApiAgentsIdRouteImport } from './routes/api/agents/$id'
+import { Route as ApiEvalsRunsIdRouteImport } from './routes/api/evals/runs/$id'
 import { Route as ApiAgentsIdKeysRouteImport } from './routes/api/agents/$id/keys'
 import { Route as ApiAgentsIdKeysKeyIdRouteImport } from './routes/api/agents/$id/keys/$keyId'
 
@@ -37,9 +47,29 @@ const DashboardIndexRoute = DashboardIndexRouteImport.update({
   path: '/',
   getParentRoute: () => DashboardRouteRoute,
 } as any)
+const DatasetsLocomoRoute = DatasetsLocomoRouteImport.update({
+  id: '/datasets/locomo',
+  path: '/datasets/locomo',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DatasetsLmeV2Route = DatasetsLmeV2RouteImport.update({
+  id: '/datasets/lme-v2',
+  path: '/datasets/lme-v2',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DatasetsLmeRoute = DatasetsLmeRouteImport.update({
+  id: '/datasets/lme',
+  path: '/datasets/lme',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const DashboardPlaygroundRoute = DashboardPlaygroundRouteImport.update({
   id: '/playground',
   path: '/playground',
+  getParentRoute: () => DashboardRouteRoute,
+} as any)
+const DashboardEvalsRoute = DashboardEvalsRouteImport.update({
+  id: '/evals',
+  path: '/evals',
   getParentRoute: () => DashboardRouteRoute,
 } as any)
 const DashboardAgentsRoute = DashboardAgentsRouteImport.update({
@@ -67,10 +97,40 @@ const ApiAgentsRoute = ApiAgentsRouteImport.update({
   path: '/api/agents',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiEvalsRunsRoute = ApiEvalsRunsRouteImport.update({
+  id: '/api/evals/runs',
+  path: '/api/evals/runs',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiEvalsDatasetsRoute = ApiEvalsDatasetsRouteImport.update({
+  id: '/api/evals/datasets',
+  path: '/api/evals/datasets',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiDatasetsLocomoRoute = ApiDatasetsLocomoRouteImport.update({
+  id: '/api/datasets/locomo',
+  path: '/api/datasets/locomo',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiDatasetsLmeV2Route = ApiDatasetsLmeV2RouteImport.update({
+  id: '/api/datasets/lme-v2',
+  path: '/api/datasets/lme-v2',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiDatasetsLmeRoute = ApiDatasetsLmeRouteImport.update({
+  id: '/api/datasets/lme',
+  path: '/api/datasets/lme',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiAgentsIdRoute = ApiAgentsIdRouteImport.update({
   id: '/$id',
   path: '/$id',
   getParentRoute: () => ApiAgentsRoute,
+} as any)
+const ApiEvalsRunsIdRoute = ApiEvalsRunsIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => ApiEvalsRunsRoute,
 } as any)
 const ApiAgentsIdKeysRoute = ApiAgentsIdKeysRouteImport.update({
   id: '/keys',
@@ -91,10 +151,20 @@ export interface FileRoutesByFullPath {
   '/api/playground': typeof ApiPlaygroundRoute
   '/cli/login': typeof CliLoginRoute
   '/dashboard/agents': typeof DashboardAgentsRoute
+  '/dashboard/evals': typeof DashboardEvalsRoute
   '/dashboard/playground': typeof DashboardPlaygroundRoute
+  '/datasets/lme': typeof DatasetsLmeRoute
+  '/datasets/lme-v2': typeof DatasetsLmeV2Route
+  '/datasets/locomo': typeof DatasetsLocomoRoute
   '/dashboard/': typeof DashboardIndexRoute
   '/api/agents/$id': typeof ApiAgentsIdRouteWithChildren
+  '/api/datasets/lme': typeof ApiDatasetsLmeRoute
+  '/api/datasets/lme-v2': typeof ApiDatasetsLmeV2Route
+  '/api/datasets/locomo': typeof ApiDatasetsLocomoRoute
+  '/api/evals/datasets': typeof ApiEvalsDatasetsRoute
+  '/api/evals/runs': typeof ApiEvalsRunsRouteWithChildren
   '/api/agents/$id/keys': typeof ApiAgentsIdKeysRouteWithChildren
+  '/api/evals/runs/$id': typeof ApiEvalsRunsIdRoute
   '/api/agents/$id/keys/$keyId': typeof ApiAgentsIdKeysKeyIdRoute
 }
 export interface FileRoutesByTo {
@@ -104,10 +174,20 @@ export interface FileRoutesByTo {
   '/api/playground': typeof ApiPlaygroundRoute
   '/cli/login': typeof CliLoginRoute
   '/dashboard/agents': typeof DashboardAgentsRoute
+  '/dashboard/evals': typeof DashboardEvalsRoute
   '/dashboard/playground': typeof DashboardPlaygroundRoute
+  '/datasets/lme': typeof DatasetsLmeRoute
+  '/datasets/lme-v2': typeof DatasetsLmeV2Route
+  '/datasets/locomo': typeof DatasetsLocomoRoute
   '/dashboard': typeof DashboardIndexRoute
   '/api/agents/$id': typeof ApiAgentsIdRouteWithChildren
+  '/api/datasets/lme': typeof ApiDatasetsLmeRoute
+  '/api/datasets/lme-v2': typeof ApiDatasetsLmeV2Route
+  '/api/datasets/locomo': typeof ApiDatasetsLocomoRoute
+  '/api/evals/datasets': typeof ApiEvalsDatasetsRoute
+  '/api/evals/runs': typeof ApiEvalsRunsRouteWithChildren
   '/api/agents/$id/keys': typeof ApiAgentsIdKeysRouteWithChildren
+  '/api/evals/runs/$id': typeof ApiEvalsRunsIdRoute
   '/api/agents/$id/keys/$keyId': typeof ApiAgentsIdKeysKeyIdRoute
 }
 export interface FileRoutesById {
@@ -119,10 +199,20 @@ export interface FileRoutesById {
   '/api/playground': typeof ApiPlaygroundRoute
   '/cli/login': typeof CliLoginRoute
   '/dashboard/agents': typeof DashboardAgentsRoute
+  '/dashboard/evals': typeof DashboardEvalsRoute
   '/dashboard/playground': typeof DashboardPlaygroundRoute
+  '/datasets/lme': typeof DatasetsLmeRoute
+  '/datasets/lme-v2': typeof DatasetsLmeV2Route
+  '/datasets/locomo': typeof DatasetsLocomoRoute
   '/dashboard/': typeof DashboardIndexRoute
   '/api/agents/$id': typeof ApiAgentsIdRouteWithChildren
+  '/api/datasets/lme': typeof ApiDatasetsLmeRoute
+  '/api/datasets/lme-v2': typeof ApiDatasetsLmeV2Route
+  '/api/datasets/locomo': typeof ApiDatasetsLocomoRoute
+  '/api/evals/datasets': typeof ApiEvalsDatasetsRoute
+  '/api/evals/runs': typeof ApiEvalsRunsRouteWithChildren
   '/api/agents/$id/keys': typeof ApiAgentsIdKeysRouteWithChildren
+  '/api/evals/runs/$id': typeof ApiEvalsRunsIdRoute
   '/api/agents/$id/keys/$keyId': typeof ApiAgentsIdKeysKeyIdRoute
 }
 export interface FileRouteTypes {
@@ -135,10 +225,20 @@ export interface FileRouteTypes {
     | '/api/playground'
     | '/cli/login'
     | '/dashboard/agents'
+    | '/dashboard/evals'
     | '/dashboard/playground'
+    | '/datasets/lme'
+    | '/datasets/lme-v2'
+    | '/datasets/locomo'
     | '/dashboard/'
     | '/api/agents/$id'
+    | '/api/datasets/lme'
+    | '/api/datasets/lme-v2'
+    | '/api/datasets/locomo'
+    | '/api/evals/datasets'
+    | '/api/evals/runs'
     | '/api/agents/$id/keys'
+    | '/api/evals/runs/$id'
     | '/api/agents/$id/keys/$keyId'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -148,10 +248,20 @@ export interface FileRouteTypes {
     | '/api/playground'
     | '/cli/login'
     | '/dashboard/agents'
+    | '/dashboard/evals'
     | '/dashboard/playground'
+    | '/datasets/lme'
+    | '/datasets/lme-v2'
+    | '/datasets/locomo'
     | '/dashboard'
     | '/api/agents/$id'
+    | '/api/datasets/lme'
+    | '/api/datasets/lme-v2'
+    | '/api/datasets/locomo'
+    | '/api/evals/datasets'
+    | '/api/evals/runs'
     | '/api/agents/$id/keys'
+    | '/api/evals/runs/$id'
     | '/api/agents/$id/keys/$keyId'
   id:
     | '__root__'
@@ -162,10 +272,20 @@ export interface FileRouteTypes {
     | '/api/playground'
     | '/cli/login'
     | '/dashboard/agents'
+    | '/dashboard/evals'
     | '/dashboard/playground'
+    | '/datasets/lme'
+    | '/datasets/lme-v2'
+    | '/datasets/locomo'
     | '/dashboard/'
     | '/api/agents/$id'
+    | '/api/datasets/lme'
+    | '/api/datasets/lme-v2'
+    | '/api/datasets/locomo'
+    | '/api/evals/datasets'
+    | '/api/evals/runs'
     | '/api/agents/$id/keys'
+    | '/api/evals/runs/$id'
     | '/api/agents/$id/keys/$keyId'
   fileRoutesById: FileRoutesById
 }
@@ -176,6 +296,14 @@ export interface RootRouteChildren {
   ApiMemoriesRoute: typeof ApiMemoriesRoute
   ApiPlaygroundRoute: typeof ApiPlaygroundRoute
   CliLoginRoute: typeof CliLoginRoute
+  DatasetsLmeRoute: typeof DatasetsLmeRoute
+  DatasetsLmeV2Route: typeof DatasetsLmeV2Route
+  DatasetsLocomoRoute: typeof DatasetsLocomoRoute
+  ApiDatasetsLmeRoute: typeof ApiDatasetsLmeRoute
+  ApiDatasetsLmeV2Route: typeof ApiDatasetsLmeV2Route
+  ApiDatasetsLocomoRoute: typeof ApiDatasetsLocomoRoute
+  ApiEvalsDatasetsRoute: typeof ApiEvalsDatasetsRoute
+  ApiEvalsRunsRoute: typeof ApiEvalsRunsRouteWithChildren
 }
 
 declare module '@tanstack/react-router' {
@@ -201,11 +329,39 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardIndexRouteImport
       parentRoute: typeof DashboardRouteRoute
     }
+    '/datasets/locomo': {
+      id: '/datasets/locomo'
+      path: '/datasets/locomo'
+      fullPath: '/datasets/locomo'
+      preLoaderRoute: typeof DatasetsLocomoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/datasets/lme-v2': {
+      id: '/datasets/lme-v2'
+      path: '/datasets/lme-v2'
+      fullPath: '/datasets/lme-v2'
+      preLoaderRoute: typeof DatasetsLmeV2RouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/datasets/lme': {
+      id: '/datasets/lme'
+      path: '/datasets/lme'
+      fullPath: '/datasets/lme'
+      preLoaderRoute: typeof DatasetsLmeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/dashboard/playground': {
       id: '/dashboard/playground'
       path: '/playground'
       fullPath: '/dashboard/playground'
       preLoaderRoute: typeof DashboardPlaygroundRouteImport
+      parentRoute: typeof DashboardRouteRoute
+    }
+    '/dashboard/evals': {
+      id: '/dashboard/evals'
+      path: '/evals'
+      fullPath: '/dashboard/evals'
+      preLoaderRoute: typeof DashboardEvalsRouteImport
       parentRoute: typeof DashboardRouteRoute
     }
     '/dashboard/agents': {
@@ -243,12 +399,54 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiAgentsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/evals/runs': {
+      id: '/api/evals/runs'
+      path: '/api/evals/runs'
+      fullPath: '/api/evals/runs'
+      preLoaderRoute: typeof ApiEvalsRunsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/evals/datasets': {
+      id: '/api/evals/datasets'
+      path: '/api/evals/datasets'
+      fullPath: '/api/evals/datasets'
+      preLoaderRoute: typeof ApiEvalsDatasetsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/datasets/locomo': {
+      id: '/api/datasets/locomo'
+      path: '/api/datasets/locomo'
+      fullPath: '/api/datasets/locomo'
+      preLoaderRoute: typeof ApiDatasetsLocomoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/datasets/lme-v2': {
+      id: '/api/datasets/lme-v2'
+      path: '/api/datasets/lme-v2'
+      fullPath: '/api/datasets/lme-v2'
+      preLoaderRoute: typeof ApiDatasetsLmeV2RouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/datasets/lme': {
+      id: '/api/datasets/lme'
+      path: '/api/datasets/lme'
+      fullPath: '/api/datasets/lme'
+      preLoaderRoute: typeof ApiDatasetsLmeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/agents/$id': {
       id: '/api/agents/$id'
       path: '/$id'
       fullPath: '/api/agents/$id'
       preLoaderRoute: typeof ApiAgentsIdRouteImport
       parentRoute: typeof ApiAgentsRoute
+    }
+    '/api/evals/runs/$id': {
+      id: '/api/evals/runs/$id'
+      path: '/$id'
+      fullPath: '/api/evals/runs/$id'
+      preLoaderRoute: typeof ApiEvalsRunsIdRouteImport
+      parentRoute: typeof ApiEvalsRunsRoute
     }
     '/api/agents/$id/keys': {
       id: '/api/agents/$id/keys'
@@ -269,12 +467,14 @@ declare module '@tanstack/react-router' {
 
 interface DashboardRouteRouteChildren {
   DashboardAgentsRoute: typeof DashboardAgentsRoute
+  DashboardEvalsRoute: typeof DashboardEvalsRoute
   DashboardPlaygroundRoute: typeof DashboardPlaygroundRoute
   DashboardIndexRoute: typeof DashboardIndexRoute
 }
 
 const DashboardRouteRouteChildren: DashboardRouteRouteChildren = {
   DashboardAgentsRoute: DashboardAgentsRoute,
+  DashboardEvalsRoute: DashboardEvalsRoute,
   DashboardPlaygroundRoute: DashboardPlaygroundRoute,
   DashboardIndexRoute: DashboardIndexRoute,
 }
@@ -319,6 +519,18 @@ const ApiAgentsRouteWithChildren = ApiAgentsRoute._addFileChildren(
   ApiAgentsRouteChildren,
 )
 
+interface ApiEvalsRunsRouteChildren {
+  ApiEvalsRunsIdRoute: typeof ApiEvalsRunsIdRoute
+}
+
+const ApiEvalsRunsRouteChildren: ApiEvalsRunsRouteChildren = {
+  ApiEvalsRunsIdRoute: ApiEvalsRunsIdRoute,
+}
+
+const ApiEvalsRunsRouteWithChildren = ApiEvalsRunsRoute._addFileChildren(
+  ApiEvalsRunsRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   DashboardRouteRoute: DashboardRouteRouteWithChildren,
@@ -326,6 +538,14 @@ const rootRouteChildren: RootRouteChildren = {
   ApiMemoriesRoute: ApiMemoriesRoute,
   ApiPlaygroundRoute: ApiPlaygroundRoute,
   CliLoginRoute: CliLoginRoute,
+  DatasetsLmeRoute: DatasetsLmeRoute,
+  DatasetsLmeV2Route: DatasetsLmeV2Route,
+  DatasetsLocomoRoute: DatasetsLocomoRoute,
+  ApiDatasetsLmeRoute: ApiDatasetsLmeRoute,
+  ApiDatasetsLmeV2Route: ApiDatasetsLmeV2Route,
+  ApiDatasetsLocomoRoute: ApiDatasetsLocomoRoute,
+  ApiEvalsDatasetsRoute: ApiEvalsDatasetsRoute,
+  ApiEvalsRunsRoute: ApiEvalsRunsRouteWithChildren,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

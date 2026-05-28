@@ -1,10 +1,12 @@
 import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { clerk } from "./auth";
+import { processEvalQueue } from "./eval-service";
 import { jsonError } from "./http";
 import agentsRoute from "./routes/agents";
+import evalsRoute from "./routes/evals";
 import memoriesRoute from "./routes/memories";
-import type { HonoEnv } from "./types";
+import type { EvalQueueMessage, HonoEnv } from "./types";
 
 const app = new Hono<HonoEnv>();
 
@@ -47,8 +49,17 @@ app.get("/health", (c) =>
 
 app.route("/v1/agents", agentsRoute);
 app.route("/v1/memories", memoriesRoute);
+app.route("/v1/evals", evalsRoute);
 
 app.onError((err, c) => jsonError(c, err));
 app.notFound((c) => c.json({ error: "Not found" }, 404));
 
-export default app;
+export default {
+  fetch: app.fetch,
+  async queue(batch: MessageBatch<EvalQueueMessage>, env: HonoEnv["Bindings"]) {
+    for (const message of batch.messages) {
+      await processEvalQueue(env, message.body);
+      message.ack();
+    }
+  },
+} satisfies ExportedHandler<HonoEnv["Bindings"], EvalQueueMessage>;

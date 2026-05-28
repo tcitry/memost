@@ -32,6 +32,22 @@ export function newApiKeyId(): string {
   return newId("key");
 }
 
+export function newEvalDatasetId(): string {
+  return newId("evalds");
+}
+
+export function newEvalItemId(): string {
+  return newId("evalitem");
+}
+
+export function newEvalRunId(): string {
+  return newId("evalrun");
+}
+
+export function newEvalResultId(): string {
+  return newId("evalres");
+}
+
 export interface RawApiKey {
   raw: string;
   prefix: string;

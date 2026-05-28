@@ -1,7 +1,7 @@
 import { and, desc, eq, like, or, sql } from "drizzle-orm";
 import { createDb } from "./db/client";
 import { kgTriples } from "./db/schema";
-import { embed } from "./embeddings";
+import { embedMany } from "./embeddings";
 import { newTripleId } from "./ids";
 import type { Bindings, KgTripleRow } from "./types";
 
@@ -58,12 +58,23 @@ export async function extractTriples(env: Bindings, text: string): Promise<Tripl
     const parsed = JSON.parse(jsonMatch[0]) as { triples?: Triple[] };
     if (!Array.isArray(parsed.triples)) return [];
     return parsed.triples
-      .filter((t) => t && t.subject && t.predicate && t.object)
+      .filter(
+        (t) =>
+          t &&
+          t.subject &&
+          t.predicate &&
+          t.object &&
+          // Require an explicit numeric confidence — the model does
+          // emit one on success. Without it we cannot rank, so drop
+          // the row to keep graph scoring honest.
+          typeof t.confidence === "number" &&
+          Number.isFinite(t.confidence),
+      )
       .map((t) => ({
         subject: String(t.subject).slice(0, 256),
         predicate: String(t.predicate).slice(0, 128),
         object: String(t.object).slice(0, 512),
-        confidence: typeof t.confidence === "number" ? Math.max(0, Math.min(1, t.confidence)) : 0.7,
+        confidence: Math.max(0, Math.min(1, t.confidence)),
       }));
   } catch (err) {
     console.warn("kg_parse_failed", err);
@@ -85,20 +96,32 @@ export async function storeTriples(args: StoreTriplesArgs): Promise<KgTripleRow[
   const { env, agentId, ownerId, pid, tid, sourceMemoryId, triples } = args;
   if (triples.length === 0) return [];
 
-  const stored: KgTripleRow[] = [];
   const db = createDb(env.DB);
-  for (const t of triples) {
-    const id = newTripleId();
-    const phrase = `${t.subject} ${t.predicate} ${t.object}`;
-    const createdAt = new Date().toISOString();
-    let vectorId: string | null = null;
+  const createdAt = new Date().toISOString();
+
+  // Pre-allocate ids + phrases so we can do a single batched embedding
+  // call instead of one round trip per triple.
+  const prepared = triples.map((t) => ({
+    id: newTripleId(),
+    triple: t,
+    phrase: `${t.subject} ${t.predicate} ${t.object}`,
+  }));
+
+  let embeddings: number[][] = [];
+  try {
+    embeddings = await embedMany(env, prepared.map((p) => p.phrase));
+  } catch (err) {
+    console.warn("kg_embed_many_failed", err);
+  }
+
+  // Vector upsert is best-effort; failures degrade us to D1-only KG
+  // recall but don't drop the row.
+  if (embeddings.length === prepared.length) {
     try {
-      const embedding = await embed(env, phrase);
-      vectorId = `kg:${id}`;
-      await env.MEMORY_INDEX.upsert([
-        {
-          id: vectorId,
-          values: embedding,
+      await env.MEMORY_INDEX.upsert(
+        prepared.map((p, idx) => ({
+          id: `kg:${p.id}`,
+          values: embeddings[idx] as number[],
           metadata: {
             kind: "triple",
             agent_id: agentId,
@@ -107,43 +130,35 @@ export async function storeTriples(args: StoreTriplesArgs): Promise<KgTripleRow[
             tid: tid ?? "",
             source_memory_id: sourceMemoryId,
           },
-        },
-      ]);
+        })),
+      );
     } catch (err) {
       console.warn("kg_vector_upsert_failed", err);
     }
-
-    await db.insert(kgTriples).values({
-        id,
-        agent_id: agentId,
-        owner_id: ownerId,
-        pid,
-        tid,
-        subject: t.subject,
-        predicate: t.predicate,
-        object: t.object,
-        confidence: t.confidence,
-        source_memory_id: sourceMemoryId,
-        vector_id: vectorId,
-        created_at: createdAt,
-      });
-
-    stored.push({
-      id,
-      agent_id: agentId,
-      owner_id: ownerId,
-      pid,
-      tid,
-      subject: t.subject,
-      predicate: t.predicate,
-      object: t.object,
-      confidence: t.confidence,
-      source_memory_id: sourceMemoryId,
-      vector_id: vectorId,
-      created_at: createdAt,
-    });
   }
-  return stored;
+
+  const rows = prepared.map((p, idx) => ({
+    id: p.id,
+    agent_id: agentId,
+    owner_id: ownerId,
+    pid,
+    tid,
+    subject: p.triple.subject,
+    predicate: p.triple.predicate,
+    object: p.triple.object,
+    confidence: p.triple.confidence,
+    source_memory_id: sourceMemoryId,
+    vector_id:
+      embeddings.length === prepared.length && embeddings[idx] ? `kg:${p.id}` : null,
+    created_at: createdAt,
+  }));
+
+  // Single bulk insert avoids N round-trips to D1.
+  for (let index = 0; index < rows.length; index += 50) {
+    await db.insert(kgTriples).values(rows.slice(index, index + 50));
+  }
+
+  return rows;
 }
 
 // Hop-1 graph expansion: given a free-text query, find the triples whose
@@ -158,8 +173,17 @@ export async function searchKg(
   tid: string | null,
   limit = 20,
 ): Promise<KgTripleRow[]> {
+  // Trim and short-circuit too-short queries — a 1-character LIKE
+  // matches nearly every triple and returns useless noise. SQLite's
+  // default LIKE has no ESCAPE clause, so we strip the wildcard
+  // characters instead of trying to escape them.
+  const cleaned = query.trim();
+  if (cleaned.length < 2) return [];
+  const sanitized = cleaned.toLowerCase().replace(/[%_]/g, " ").trim();
+  if (sanitized.length < 2) return [];
+  const needle = `%${sanitized}%`;
+
   const db = createDb(dbBinding);
-  const needle = `%${query.toLowerCase()}%`;
   const filters = [
     eq(kgTriples.agent_id, agentId),
     or(

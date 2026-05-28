@@ -19,7 +19,6 @@ import {
   runApiKeyLogin,
   runBrowserLogin,
   runOAuthRefresh,
-  runTokenLogin,
 } from "./login-flow.js";
 
 const program = new Command();
@@ -32,19 +31,15 @@ program
 program
   .command("login")
   .description("Sign in with Clerk OAuth + PKCE and save the session to ~/.memost/auth.json")
-  .option("--token <jwt>", "Paste a Clerk JWT manually (skip the browser)")
+  .option("--url <url>", "Web URL to bind this CLI session to", loadConfig().webBaseUrl)
   .option("--api-key <key>", "Save only an mst_* API key (for memory APIs)")
-  .action(async (opts: { token?: string; apiKey?: string }) => {
+  .action(async (opts: { url: string; apiKey?: string }) => {
     try {
       if (opts.apiKey) {
         runApiKeyLogin(opts.apiKey);
         return;
       }
-      if (opts.token) {
-        runTokenLogin(opts.token);
-        return;
-      }
-      await runBrowserLogin();
+      await runBrowserLogin(opts.url);
     } catch (err) {
       die(err instanceof Error ? err.message : String(err));
     }
@@ -70,7 +65,6 @@ program
     console.log(`api:    ${config.apiBaseUrl}`);
     console.log(`web:    ${config.webBaseUrl}`);
     console.log(`oauth:  ${auth.oauthAccessToken ? "yes" : "no"}`);
-    console.log(`clerk:  ${auth.clerkToken ? "yes" : "no"}`);
     console.log(`apiKey: ${auth.apiKey ? `${auth.apiKey.slice(0, 16)}…` : "no"}`);
     console.log(`agent:  ${config.defaultAgentId ?? "(unset)"}`);
     try {
@@ -80,7 +74,7 @@ program
     } catch (err) {
       console.log(`health: unreachable (${err instanceof Error ? err.message : err})`);
     }
-    if (auth.oauthAccessToken || auth.clerkToken) {
+    if (auth.oauthAccessToken) {
       try {
         const data = await apiRequest<{ agents: unknown[] }>({
           path: "/v1/agents",
@@ -123,7 +117,6 @@ configCmd
       oauthRefreshToken: a.oauthRefreshToken ? "[set]" : undefined,
       oauthExpiresAt: a.oauthExpiresAt,
       oauthScope: a.oauthScope,
-      clerkToken: a.clerkToken ? "[set]" : undefined,
       apiKey: a.apiKey ? `${a.apiKey.slice(0, 16)}…` : undefined,
     };
     if (opts.json) printJson(masked);
@@ -146,4 +139,5 @@ registerAgentsCommand(program);
 registerKeysCommand(program);
 registerMemoriesCommand(program);
 
-program.parse();
+const argv = process.argv.filter((arg, index) => index < 2 || arg !== "--");
+program.parse(argv);

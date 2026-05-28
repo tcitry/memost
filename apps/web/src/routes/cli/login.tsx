@@ -63,14 +63,14 @@ function CliLoginPage() {
   return (
     <main className="mx-auto flex min-h-svh max-w-lg flex-col justify-center gap-6 px-6 py-16">
       <header>
-        <p className="text-sm font-extrabold uppercase tracking-[0.08em] text-[#3b7055]">
+        <p className="memost-kicker">
           CLI Login
         </p>
-        <h1 className="mt-2 text-2xl font-semibold text-[#132018]">
+        <h1 className="memost-heading mt-2 text-2xl">
           Connect Memost CLI
         </h1>
       </header>
-      <p className="text-sm leading-relaxed text-[#415548]">{status}</p>
+      <p className="memost-body text-sm">{status}</p>
       {isLoaded && !isSignedIn ? (
         <SignInButton mode="modal">
           <Button size="lg">Sign in</Button>

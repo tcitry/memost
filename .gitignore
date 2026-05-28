@@ -19,6 +19,7 @@ coverage
 # Turbo
 .turbo
 .wrangler
+tmp/
 
 # Vercel
 .vercel

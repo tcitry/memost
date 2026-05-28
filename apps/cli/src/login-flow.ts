@@ -1,7 +1,7 @@
 import crypto from "node:crypto";
 import http from "node:http";
 import { exec } from "node:child_process";
-import { loadAuth, saveAuth } from "./config.js";
+import { loadAuth, saveAuth, saveConfig } from "./config.js";
 
 const CALLBACK_TIMEOUT_MS = 120_000;
 const DEFAULT_AUTHORIZE_URL =
@@ -38,6 +38,36 @@ function oauthConfig(): OAuthConfig {
     redirectUri:
       process.env.MEMOST_CLI_OAUTH_REDIRECT_URI ?? DEFAULT_REDIRECT_URI,
   };
+}
+
+function normalizeBaseUrl(raw: string): string {
+  const withProtocol = /^https?:\/\//.test(raw) ? raw : `https://${raw}`;
+  const url = new URL(withProtocol);
+  url.pathname = "";
+  url.search = "";
+  url.hash = "";
+  return url.toString().replace(/\/$/, "");
+}
+
+export function inferApiBaseUrl(webBaseUrl: string): string {
+  const url = new URL(normalizeBaseUrl(webBaseUrl));
+  if (url.hostname === "memo.st") return "https://api.memo.st";
+  if (url.hostname === "memost.iuvdev.com") {
+    return "https://memost-api.iuvdev.com";
+  }
+  if (url.hostname === "localhost" || url.hostname === "127.0.0.1") {
+    return "http://127.0.0.1:8787";
+  }
+
+  if (url.hostname.startsWith("memost.")) {
+    url.hostname = url.hostname.replace(/^memost\./, "memost-api.");
+    return url.toString().replace(/\/$/, "");
+  }
+
+  if (!url.hostname.startsWith("api.")) {
+    url.hostname = `api.${url.hostname}`;
+  }
+  return url.toString().replace(/\/$/, "");
 }
 
 function base64Url(input: Buffer | string): string {
@@ -366,7 +396,7 @@ export async function runOAuthRefresh(): Promise<void> {
   console.log("OAuth session refreshed.");
 }
 
-export async function runBrowserLogin(): Promise<void> {
+export async function runBrowserLogin(webUrl?: string): Promise<void> {
   const config = oauthConfig();
   if (!config.clientId) {
     throw new Error(
@@ -407,15 +437,19 @@ export async function runBrowserLogin(): Promise<void> {
     oauthExpiresAt: expiresAt,
     oauthScope: token.scope,
     oauthTokenType: token.token_type,
-    clerkToken: undefined,
   });
+  if (webUrl) {
+    const webBaseUrl = normalizeBaseUrl(webUrl);
+    saveConfig({
+      webBaseUrl,
+      apiBaseUrl: inferApiBaseUrl(webBaseUrl),
+    });
+  }
   console.log("Signed in with OAuth + PKCE.");
+  if (webUrl) {
+    console.log(`Saved web URL ${normalizeBaseUrl(webUrl)} and API URL ${inferApiBaseUrl(webUrl)}.`);
+  }
   console.log(`${token.refresh_token ? "Saved refresh token and access token" : "Saved access token"} to ~/.memost/auth.json`);
-}
-
-export function runTokenLogin(token: string): void {
-  saveAuth({ clerkToken: token.trim(), oauthAccessToken: undefined });
-  console.log("Saved Clerk session token.");
 }
 
 export function runApiKeyLogin(apiKey: string): void {

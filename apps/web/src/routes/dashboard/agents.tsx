@@ -4,10 +4,10 @@ import { Button } from "@repo/design-system/components/ui/button";
 import type { Agent, ApiKey, ApiKeyWithSecret } from "../../lib/types";
 
 const labelCls =
-  "block text-xs font-semibold uppercase tracking-wide text-[#3b7055] mb-1";
+  "block text-xs font-semibold uppercase tracking-wide text-[#5f5f5d] mb-1";
 const inputCls =
-  "w-full rounded-lg border border-[rgba(31,57,42,0.18)] bg-[rgba(255,254,249,0.92)] px-3 py-2 text-sm text-[#132018] outline-none transition focus:border-[#244c37] focus:ring-2 focus:ring-[rgba(36,76,55,0.15)]";
-const helpCls = "mt-1 text-xs text-[#54665a]";
+  "w-full rounded-md border border-[rgba(28,28,28,0.4)] bg-background px-3 py-2 text-sm text-[#1c1c1c] outline-none transition focus:border-[rgba(28,28,28,0.4)] focus:shadow-[var(--memost-focus-shadow)]";
+const helpCls = "mt-1 text-xs text-[#5f5f5d]";
 
 export const Route = createFileRoute("/dashboard/agents")({
   component: AgentsPage,
@@ -199,22 +199,22 @@ function AgentsPage() {
   return (
     <main className="flex-1 px-[clamp(20px,4vw,40px)] py-8">
       <header className="max-w-[900px]">
-        <p className="mb-2 text-sm font-extrabold uppercase tracking-[0.08em] text-[#3b7055]">
+        <p className="memost-kicker mb-2">
           Agents
         </p>
-        <h1 className="text-3xl font-semibold leading-[0.98] text-[#132018] md:text-4xl">
+        <h1 className="memost-heading text-3xl md:text-4xl">
           Agent management
         </h1>
-        <p className="mt-4 max-w-[720px] text-base leading-[1.55] text-[#415548]">
+        <p className="memost-body mt-4 max-w-[720px] text-base">
           Memory is organized into three scope levels:
-          <strong className="font-semibold text-[#132018]"> Agent</strong>
+          <strong className="font-semibold text-[#1c1c1c]"> Agent</strong>
           (top-level unit) →
-          <strong className="font-semibold text-[#132018]"> pid</strong>
+          <strong className="font-semibold text-[#1c1c1c]"> pid</strong>
           (process / project) →
-          <strong className="font-semibold text-[#132018]"> tid</strong>
+          <strong className="font-semibold text-[#1c1c1c]"> tid</strong>
           (thread / session, optional). Every memory and graph triple belongs to that hierarchy.
         </p>
-        <div className="mt-4 rounded-lg border border-[rgba(31,57,42,0.12)] bg-[rgba(255,254,249,0.65)] px-4 py-3 font-mono text-xs text-[#415548]">
+        <div className="mt-4 rounded-md border border-[#eceae4] bg-[rgba(28,28,28,0.03)] px-4 py-3 font-mono text-xs text-[rgba(28,28,28,0.82)]">
           organization → agent_id → pid → tid?
         </div>
       </header>
@@ -228,13 +228,13 @@ function AgentsPage() {
       <section className="mt-8 grid gap-8 xl:grid-cols-[minmax(0,1fr)_minmax(300px,0.55fr)]">
         <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)]">
           <div>
-            <h2 className="mb-4 text-lg font-semibold text-[#132018]">
+            <h2 className="mb-4 text-lg font-semibold text-[#1c1c1c]">
               Agent list
             </h2>
             {agents === null ? (
-              <p className="text-sm text-[#54665a]">Loading...</p>
+              <p className="text-sm text-[#5f5f5d]">Loading...</p>
             ) : agents.length === 0 ? (
-              <p className="text-sm text-[#54665a]">
+              <p className="text-sm text-[#5f5f5d]">
                 No agents yet. Create one on the right.
               </p>
             ) : (
@@ -246,24 +246,24 @@ function AgentsPage() {
                       onClick={() => setSelectedId(agent.id)}
                       className={
                         selectedId === agent.id
-                          ? "w-full rounded-xl border-2 border-[#244c37] bg-[rgba(36,76,55,0.08)] px-4 py-3 text-left shadow-[0_12px_36px_rgba(18,35,25,0.06)]"
-                          : "w-full rounded-xl border border-[rgba(31,57,42,0.14)] bg-[rgba(255,254,249,0.78)] px-4 py-3 text-left shadow-[0_12px_36px_rgba(18,35,25,0.05)] hover:border-[rgba(36,76,55,0.35)]"
+                          ? "w-full rounded-xl border-2 border-[#1c1c1c] bg-[rgba(28,28,28,0.04)] px-4 py-3 text-left"
+                          : "w-full rounded-xl border border-[#eceae4] bg-background px-4 py-3 text-left hover:border-[rgba(28,28,28,0.4)]"
                       }
                     >
                       <div className="flex flex-wrap items-baseline justify-between gap-2">
-                        <span className="font-semibold text-[#132018]">
+                        <span className="font-semibold text-[#1c1c1c]">
                           {agent.name}
                         </span>
-                        <code className="text-[10px] text-[#54665a]">
+                        <code className="text-[10px] text-[#5f5f5d]">
                           {agent.id}
                         </code>
                       </div>
                       {agent.description ? (
-                        <p className="mt-1 text-sm text-[#415548] line-clamp-2">
+                        <p className="mt-1 text-sm text-[rgba(28,28,28,0.82)] line-clamp-2">
                           {agent.description}
                         </p>
                       ) : null}
-                      <p className="mt-2 text-xs text-[#54665a]">
+                      <p className="mt-2 text-xs text-[#5f5f5d]">
                         Default pid: {agent.default_pid}
                       </p>
                     </button>
@@ -274,19 +274,19 @@ function AgentsPage() {
           </div>
 
           <div>
-            <h2 className="mb-4 text-lg font-semibold text-[#132018]">
+            <h2 className="mb-4 text-lg font-semibold text-[#1c1c1c]">
               {selected ? selected.name : "Select an agent"}
             </h2>
             {!selected ? (
-              <p className="text-sm text-[#54665a]">
+              <p className="text-sm text-[#5f5f5d]">
                 Select an agent on the left to manage API keys.
               </p>
             ) : (
-              <div className="rounded-xl border border-[rgba(31,57,42,0.14)] bg-[rgba(255,254,249,0.78)] p-4 shadow-[0_18px_50px_rgba(18,35,25,0.06)] backdrop-blur">
-                <p className="text-sm text-[#415548]">
+              <div className="memost-card p-4">
+                <p className="text-sm text-[rgba(28,28,28,0.82)]">
                   <code className="text-xs">{selected.id}</code>
                 </p>
-                <p className="mt-2 text-xs text-[#54665a]">
+                <p className="mt-2 text-xs text-[#5f5f5d]">
                   Memory scope: all pids under this agent; pass tid in Playground or via the API when needed.
                 </p>
                 <div className="mt-4 flex flex-wrap gap-2">
@@ -311,25 +311,25 @@ function AgentsPage() {
                   </Button>
                 </div>
 
-                <h3 className="mt-6 mb-2 text-sm font-semibold text-[#132018]">
+                <h3 className="mt-6 mb-2 text-sm font-semibold text-[#1c1c1c]">
                   API Keys
                 </h3>
                 {keysBusy && keys === null ? (
-                  <p className="text-xs text-[#54665a]">Loading keys...</p>
+                  <p className="text-xs text-[#5f5f5d]">Loading keys...</p>
                 ) : keys && keys.length === 0 ? (
-                  <p className="text-xs text-[#54665a]">No keys yet.</p>
+                  <p className="text-xs text-[#5f5f5d]">No keys yet.</p>
                 ) : (
                   <ul className="grid gap-2">
                     {(keys ?? []).map((key) => (
                       <li
                         key={key.id}
-                        className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-[rgba(31,57,42,0.1)] bg-[#fbfaf6] px-3 py-2 text-xs"
+                        className="flex flex-wrap items-center justify-between gap-2 rounded-md border border-[#eceae4] bg-[#f7f4ed] px-3 py-2 text-xs"
                       >
                         <div>
-                          <span className="font-semibold text-[#132018]">
+                          <span className="font-semibold text-[#1c1c1c]">
                             {key.name}
                           </span>
-                          <code className="ml-2 text-[#54665a]">
+                          <code className="ml-2 text-[#5f5f5d]">
                             {key.prefix}…
                           </code>
                           {key.revoked_at ? (
@@ -339,7 +339,7 @@ function AgentsPage() {
                         {!key.revoked_at ? (
                           <button
                             type="button"
-                            className="text-[#3b7055] underline"
+                            className="text-[#5f5f5d] underline"
                             disabled={keysBusy}
                             onClick={() => void onRevokeKey(key)}
                           >
@@ -368,13 +368,13 @@ function AgentsPage() {
                   </Button>
                 </div>
 
-                <p className="mt-4 text-xs text-[#54665a]">
+                <p className="mt-4 text-xs text-[#5f5f5d]">
                   CLI testing:
-                  <code className="mx-1 rounded bg-[rgba(31,57,42,0.08)] px-1">
+                  <code className="mx-1 rounded bg-[rgba(28,28,28,0.04)] px-1">
                     memost login
                   </code>
                   then run
-                  <code className="mx-1 rounded bg-[rgba(31,57,42,0.08)] px-1">
+                  <code className="mx-1 rounded bg-[rgba(28,28,28,0.04)] px-1">
                     memost agents list
                   </code>
                   .
@@ -384,8 +384,8 @@ function AgentsPage() {
           </div>
         </div>
 
-        <aside className="rounded-xl border border-[rgba(31,57,42,0.14)] bg-[rgba(255,254,249,0.78)] p-5 shadow-[0_18px_50px_rgba(18,35,25,0.06)] backdrop-blur xl:sticky xl:top-24 xl:self-start">
-          <h2 className="mb-3 text-lg font-semibold text-[#132018]">
+        <aside className="memost-card p-5 xl:sticky xl:top-24 xl:self-start">
+          <h2 className="mb-3 text-lg font-semibold text-[#1c1c1c]">
             Create agent
           </h2>
           <form className="grid gap-3" onSubmit={onCreate}>
@@ -442,7 +442,7 @@ function AgentsPage() {
               <p className="mt-1 text-xs">
                 Agent {revealedKey.agentId} - shown once, copy it now.
               </p>
-              <code className="mt-2 block break-all rounded bg-white/80 px-2 py-2 text-xs">
+              <code className="mt-2 block break-all rounded bg-background px-2 py-2 text-xs">
                 {revealedKey.apiKey.raw}
               </code>
               <button

@@ -28,9 +28,9 @@ interface ChatMessage {
 }
 
 const inputCls =
-  "w-full rounded-lg border border-[rgba(31,57,42,0.18)] bg-[rgba(255,254,249,0.92)] px-3 py-2 text-sm text-[#132018] outline-none transition focus:border-[#244c37] focus:ring-2 focus:ring-[rgba(36,76,55,0.15)]";
+  "w-full rounded-md border border-[rgba(28,28,28,0.4)] bg-background px-3 py-2 text-sm text-[#1c1c1c] outline-none transition focus:border-[rgba(28,28,28,0.4)] focus:shadow-[var(--memost-focus-shadow)]";
 const labelCls =
-  "block text-xs font-semibold uppercase tracking-wide text-[#3b7055] mb-1";
+  "block text-xs font-semibold uppercase tracking-wide text-[#5f5f5d] mb-1";
 
 function PlaygroundPage() {
   const { agent: agentFromUrl } = Route.useSearch();
@@ -144,13 +144,13 @@ function PlaygroundPage() {
   return (
     <main className="flex-1 px-[clamp(20px,4vw,40px)] py-8">
       <header className="max-w-[760px]">
-        <p className="mb-2 text-sm font-extrabold uppercase tracking-[0.08em] text-[#3b7055]">
+        <p className="memost-kicker mb-2">
           Playground
         </p>
-        <h1 className="text-3xl font-semibold leading-[0.98] text-[#132018] md:text-4xl">
+        <h1 className="memost-heading text-3xl md:text-4xl">
           Try add &amp; search
         </h1>
-        <p className="mt-4 max-w-[640px] text-base leading-[1.55] text-[#415548]">
+        <p className="memost-body mt-4 max-w-[640px] text-base">
           Send memories with <code>add</code> and retrieve them with
           <code className="mx-1">search</code>. The same Cloudflare-native
           pipeline is used by the SDK — vector first, text fallback, KG fan-out.
@@ -158,7 +158,7 @@ function PlaygroundPage() {
       </header>
 
       <section className="mt-8 grid gap-6 lg:grid-cols-[260px_minmax(0,1fr)]">
-        <aside className="rounded-xl border border-[rgba(31,57,42,0.14)] bg-[rgba(255,254,249,0.78)] p-4 shadow-[0_18px_50px_rgba(18,35,25,0.06)] backdrop-blur lg:sticky lg:top-24 lg:self-start">
+        <aside className="memost-card p-4 lg:sticky lg:top-24 lg:self-start">
           <div className="mb-3">
             <label className={labelCls} htmlFor="pg-agent">
               Agent
@@ -214,7 +214,7 @@ function PlaygroundPage() {
           <div className="mb-2">
             <span className={labelCls}>Operation</span>
             <div
-              className="flex items-center gap-2 rounded-lg border border-[rgba(31,57,42,0.18)] bg-[rgba(255,254,249,0.72)] p-1"
+              className="flex items-center gap-2 rounded-md border border-[rgba(28,28,28,0.4)] bg-[rgba(255,254,249,0.72)] p-1"
               role="tablist"
             >
               {(["add", "search"] as const).map((value) => (
@@ -225,8 +225,8 @@ function PlaygroundPage() {
                   aria-selected={op === value}
                   className={
                     op === value
-                      ? "flex-1 rounded-md bg-[#244c37] px-2 py-1 text-xs font-semibold text-white"
-                      : "flex-1 rounded-md px-2 py-1 text-xs font-semibold text-[#3f5045] hover:bg-[rgba(31,57,42,0.06)]"
+                      ? "flex-1 rounded-md bg-[#1c1c1c] px-2 py-1 text-xs font-normal text-[#fcfbf8]"
+                      : "flex-1 rounded-md px-2 py-1 text-xs font-normal text-[rgba(28,28,28,0.82)] hover:bg-[rgba(28,28,28,0.04)]"
                   }
                   onClick={() => setOp(value)}
                 >
@@ -243,14 +243,14 @@ function PlaygroundPage() {
           ) : null}
         </aside>
 
-        <div className="flex min-h-[480px] flex-col rounded-xl border border-[rgba(31,57,42,0.14)] bg-[rgba(255,254,249,0.78)] shadow-[0_18px_50px_rgba(18,35,25,0.06)] backdrop-blur">
+        <div className="flex min-h-[480px] flex-col memost-card">
           <div
             ref={scrollerRef}
             className="flex-1 overflow-y-auto p-4"
             aria-live="polite"
           >
             {messages.length === 0 ? (
-              <p className="text-sm text-[#54665a]">
+              <p className="text-sm text-[#5f5f5d]">
                 Pick <strong>add</strong> to store a memory or{" "}
                 <strong>search</strong> to retrieve. Messages appear here.
               </p>
@@ -265,7 +265,7 @@ function PlaygroundPage() {
             )}
           </div>
           <form
-            className="flex gap-2 border-t border-[rgba(31,57,42,0.12)] p-3"
+            className="flex gap-2 border-t border-[#eceae4] p-3"
             onSubmit={onSubmit}
           >
             <input
@@ -293,11 +293,11 @@ function MessageView({ message }: { message: ChatMessage }) {
   const align = message.role === "user" ? "items-end" : "items-start";
   const bubbleClass =
     message.role === "user"
-      ? "bg-[#244c37] text-[#f5fff8]"
-      : "bg-[rgba(31,57,42,0.06)] text-[#132018]";
+      ? "bg-[#1c1c1c] text-[#fcfbf8]"
+      : "bg-[rgba(28,28,28,0.04)] text-[#1c1c1c]";
   return (
     <div className={`flex flex-col gap-2 ${align}`}>
-      <span className="text-xs font-bold uppercase tracking-wide text-[#3b7055]">
+      <span className="text-xs font-bold uppercase tracking-wide text-[#5f5f5d]">
         {message.role} · {message.op}
       </span>
       <div className={`max-w-[85%] rounded-2xl px-4 py-2 text-sm ${bubbleClass}`}>
@@ -315,14 +315,14 @@ function MessageView({ message }: { message: ChatMessage }) {
 
 function AddResultView({ result }: { result: AddResult }) {
   return (
-    <div className="w-full max-w-[85%] rounded-xl border border-[rgba(31,57,42,0.14)] bg-[rgba(255,254,249,0.84)] p-3 text-xs text-[#415548]">
+    <div className="w-full max-w-[85%] rounded-xl border border-[#eceae4] bg-background p-3 text-xs text-[rgba(28,28,28,0.82)]">
       <p>
-        <span className="font-semibold text-[#132018]">id:</span>{" "}
+        <span className="font-semibold text-[#1c1c1c]">id:</span>{" "}
         <code>{result.memory.id}</code>
       </p>
       {result.triples.length > 0 ? (
         <details className="mt-2">
-          <summary className="cursor-pointer font-semibold text-[#132018]">
+          <summary className="cursor-pointer font-semibold text-[#1c1c1c]">
             Extracted {result.triples.length} triple
             {result.triples.length === 1 ? "" : "s"}
           </summary>
@@ -339,14 +339,14 @@ function AddResultView({ result }: { result: AddResult }) {
 
 function SearchResultView({ result }: { result: SearchResult }) {
   return (
-    <div className="w-full max-w-[85%] grid gap-2 rounded-xl border border-[rgba(31,57,42,0.14)] bg-[rgba(255,254,249,0.84)] p-3 text-xs text-[#415548]">
+    <div className="w-full max-w-[85%] grid gap-2 rounded-xl border border-[#eceae4] bg-background p-3 text-xs text-[rgba(28,28,28,0.82)]">
       {result.strategy ? (
-        <p className="text-[10px] uppercase tracking-wide text-[#54665a]">
+        <p className="text-[10px] uppercase tracking-wide text-[#5f5f5d]">
           strategy {result.strategy}
         </p>
       ) : null}
       <div>
-        <p className="font-semibold text-[#132018]">
+        <p className="font-semibold text-[#1c1c1c]">
           {result.memories.length} memor
           {result.memories.length === 1 ? "y" : "ies"}
         </p>
@@ -358,7 +358,7 @@ function SearchResultView({ result }: { result: SearchResult }) {
       </div>
       {result.triples.length > 0 ? (
         <div>
-          <p className="font-semibold text-[#132018]">
+          <p className="font-semibold text-[#1c1c1c]">
             {result.triples.length} graph hit
             {result.triples.length === 1 ? "" : "s"}
           </p>
@@ -375,9 +375,9 @@ function SearchResultView({ result }: { result: SearchResult }) {
 
 function MemoryRow({ memory }: { memory: Memory }) {
   return (
-    <li className="rounded-lg border border-[rgba(31,57,42,0.1)] bg-[#fbfaf6] p-2">
-      <p className="text-[#132018]">{memory.content}</p>
-      <p className="mt-1 text-[10px] uppercase tracking-wide text-[#54665a]">
+    <li className="rounded-md border border-[#eceae4] bg-[#f7f4ed] p-2">
+      <p className="text-[#1c1c1c]">{memory.content}</p>
+      <p className="mt-1 text-[10px] uppercase tracking-wide text-[#5f5f5d]">
         pid {memory.pid}
         {memory.tid ? ` · tid ${memory.tid}` : ""}
         {typeof memory.score === "number"
@@ -399,8 +399,8 @@ function MemoryRow({ memory }: { memory: Memory }) {
 
 function TripleRow({ triple }: { triple: KgTriple }) {
   return (
-    <li className="rounded-md bg-[rgba(31,57,42,0.04)] px-2 py-1">
-      <code className="text-[#132018]">
+    <li className="rounded-md bg-[rgba(28,28,28,0.04)] px-2 py-1">
+      <code className="text-[#1c1c1c]">
         {triple.subject} —{triple.predicate}→ {triple.object}
       </code>
     </li>

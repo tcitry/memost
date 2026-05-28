@@ -4,6 +4,6 @@ import { config } from "@repo/eslint-config/server";
 export default [
   ...config,
   {
-    ignores: ["dist/**", "worker-configuration.d.ts"],
+    ignores: ["dist/**", "scripts/**", "worker-configuration.d.ts"],
   },
 ];

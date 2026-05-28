@@ -1,6 +1,14 @@
 {
   "$schema": "https://turborepo.dev/schema.json",
-  "ui": "tui",
+  "ui": "stream",
+  "globalEnv": [
+    "MEMOST_HOME",
+    "MEMOST_CLI_OAUTH_CLIENT_ID",
+    "MEMOST_CLI_OAUTH_AUTHORIZE_URL",
+    "MEMOST_CLI_OAUTH_TOKEN_URL",
+    "MEMOST_CLI_OAUTH_SCOPES",
+    "MEMOST_CLI_OAUTH_REDIRECT_URI"
+  ],
   "tasks": {
     "build": {
       "dependsOn": ["^build"],
@@ -13,6 +21,16 @@
     },
     "check-types": {
       "dependsOn": ["^check-types"]
+    },
+    "test": {
+      "dependsOn": ["^test"],
+      "inputs": ["$TURBO_DEFAULT$", ".env.test", ".env.test.local"],
+      "outputs": []
+    },
+    "test:run": {
+      "dependsOn": ["^test:run"],
+      "inputs": ["$TURBO_DEFAULT$", ".env.test", ".env.test.local"],
+      "outputs": []
     },
     "dev": {
       "cache": false,

@@ -22,6 +22,15 @@
     "CLERK_PUBLISHABLE_KEY": "pk_test_c2hhcnAtYmlyZC00Ni5jbGVyay5hY2NvdW50cy5kZXYk",
     "API_BASE_URL": "http://127.0.0.1:8787"
   },
+  "d1_databases": [
+    {
+      "binding": "BENCHMARK_DATASET_DB",
+      "database_name": "memost-std-benchmark-dataset",
+      "database_id": "2d840e83-dcab-4537-adb2-5df631366f00",
+      "preview_database_id": "2d840e83-dcab-4537-adb2-5df631366f00",
+      "remote": true
+    }
+  ],
   "env": {
     "production": {
       "name": "memost-web-prod",
@@ -42,7 +51,16 @@
         "MEMOST_ENV": "production",
         "CLERK_PUBLISHABLE_KEY": "pk_live_Y2xlcmsubWVtby5zdCQ",
         "API_BASE_URL": "https://api.memo.st"
-      }
+      },
+      "d1_databases": [
+        {
+          "binding": "BENCHMARK_DATASET_DB",
+          "database_name": "memost-std-benchmark-dataset",
+          "database_id": "2d840e83-dcab-4537-adb2-5df631366f00",
+          "preview_database_id": "2d840e83-dcab-4537-adb2-5df631366f00",
+          "remote": true
+        }
+      ]
     }
   }
 }

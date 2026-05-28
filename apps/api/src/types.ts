@@ -3,6 +3,8 @@
 
 export interface Bindings {
   DB: D1Database;
+  BENCHMARK_DATASET_DB: D1Database;
+  EVAL_QUEUE: Queue<EvalQueueMessage>;
   MEMORY_INDEX: VectorizeIndex;
   AI: Ai;
   MEMOST_ENV: "production" | "development";
@@ -12,6 +14,15 @@ export interface Bindings {
   CLERK_PUBLISHABLE_KEY: string;
   CLERK_SECRET_KEY: string;
   CLERK_OAUTH_TOKEN_INTROSPECTION_URL?: string;
+  CLERK_OAUTH_REQUIRED_SCOPE?: string;
+}
+
+// Queue payloads carry only IDs. The endpoint config (apiKey for the
+// candidate system) is stored in eval_run_secrets and looked up by runId
+// in the consumer. Judge calls go directly to Workers AI (env.AI.run).
+export interface EvalQueueMessage {
+  runId: string;
+  itemIds: string[];
 }
 
 // Per-request principal. Either a Clerk-authenticated dashboard user

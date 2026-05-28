@@ -21,6 +21,9 @@ interface AddBody {
   namespace?: string;
   metadata?: Record<string, unknown>;
   extractKg?: boolean;
+  // Force inline KG extraction. Default behaviour is to defer the
+  // LLM round-trip via waitUntil so the response returns quickly.
+  inlineKg?: boolean;
 }
 
 interface SearchBody {
@@ -47,10 +50,17 @@ app.post("/", async (c) => {
     subjectId: body.subjectId,
     namespace: body.namespace,
   });
+  // Defer KG extraction unless the caller explicitly wants the
+  // triples returned inline (rare; useful for debugging/SDK tests).
+  // `c.executionCtx.waitUntil` keeps the worker alive until the LLM
+  // round-trip + embedding batch + bulk insert finish, while
+  // returning the memory row to the client immediately.
+  const inlineKg = body.inlineKg === true;
   const result = await addMemory(c.env, scope, {
     content,
     metadata: body.metadata,
     extractKg: body.extractKg,
+    waitUntil: inlineKg ? undefined : c.executionCtx.waitUntil.bind(c.executionCtx),
   });
   return c.json(result);
 });

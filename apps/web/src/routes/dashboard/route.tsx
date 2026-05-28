@@ -11,6 +11,7 @@ import {
   LogOut,
   Bot,
   FlaskConical,
+  Gauge,
 } from "lucide-react";
 import {
   Sidebar,
@@ -43,7 +44,7 @@ export const Route = createFileRoute("/dashboard")({
 });
 
 interface NavLink {
-  to: "/dashboard" | "/dashboard/agents" | "/dashboard/playground";
+  to: "/dashboard" | "/dashboard/agents" | "/dashboard/playground" | "/dashboard/evals";
   label: string;
   exact?: boolean;
 }
@@ -52,23 +53,24 @@ const NAV_LINKS: readonly NavLink[] = [
   { to: "/dashboard", label: "Overview", exact: true },
   { to: "/dashboard/agents", label: "Agents" },
   { to: "/dashboard/playground", label: "Playground" },
+  { to: "/dashboard/evals", label: "Evals" },
 ];
 
 function DashboardLayout() {
   return (
     <SidebarProvider defaultOpen>
-      <div className="min-h-svh w-full min-w-0 flex-1 bg-[radial-gradient(circle_at_top_left,rgba(44,125,92,0.18),transparent_34rem),linear-gradient(180deg,#fbfaf6_0%,#eef2ec_100%)]">
+      <div className="min-h-svh w-full min-w-0 flex-1 bg-background">
         <div className="flex min-h-svh">
-          <Sidebar className="border-[rgba(31,57,42,0.1)] bg-[rgba(255,254,249,0.82)]">
+          <Sidebar className="border-[#eceae4] bg-background">
             <SidebarHeader className="gap-3 p-4">
               <Link
                 to="/"
-                className="inline-flex items-center gap-2 font-bold tracking-normal"
+                className="inline-flex items-center gap-2 font-semibold"
               >
-                <span className="grid size-[34px] place-items-center rounded-lg bg-[#244c37] text-[#f7f5ef] shadow-[inset_0_-8px_18px_rgba(255,255,255,0.12)]">
+                <span className="memost-logo-mark size-[34px]">
                   m
                 </span>
-                <span className="text-[#132018]">Memo.st</span>
+                <span className="text-[#1c1c1c]">Memo.st</span>
               </Link>
               <p className="text-sm text-sidebar-foreground/70">
                 Agent memory workspace
@@ -82,7 +84,7 @@ function DashboardLayout() {
                     {NAV_LINKS.map((link) => (
                     <SidebarMenuItem key={link.to}>
                         <SidebarMenuButton
-                          className="rounded-lg data-active:bg-[#244c37] data-active:text-[#f7f5ef] hover:bg-[rgba(31,57,42,0.045)]"
+                          className="rounded-md data-active:bg-[#1c1c1c] data-active:text-[#fcfbf8] hover:bg-[rgba(28,28,28,0.04)]"
                           render={
                             <Link
                               to={link.to}
@@ -94,8 +96,10 @@ function DashboardLayout() {
                             <LayoutDashboard />
                           ) : link.to === "/dashboard/agents" ? (
                             <Bot />
-                          ) : (
+                          ) : link.to === "/dashboard/playground" ? (
                             <FlaskConical />
+                          ) : (
+                            <Gauge />
                           )}
                           <span>{link.label}</span>
                         </SidebarMenuButton>
@@ -123,13 +127,13 @@ function DashboardLayout() {
           </Sidebar>
 
           <SidebarInset className="flex min-w-0 flex-1 flex-col bg-transparent">
-            <header className="sticky top-0 z-10 flex items-center gap-3 border-b border-[rgba(31,57,42,0.1)] bg-[rgba(251,250,246,0.72)] px-[clamp(20px,4vw,40px)] py-4 backdrop-blur-[18px]">
+            <header className="sticky top-0 z-10 flex items-center gap-3 border-b border-[#eceae4] bg-[rgba(247,244,237,0.84)] px-[clamp(20px,4vw,40px)] py-4 backdrop-blur-[18px]">
               <SidebarTrigger />
               <Link
                 to="/"
-                className="inline-flex items-center gap-2 font-bold tracking-normal md:hidden"
+                className="inline-flex items-center gap-2 font-semibold md:hidden"
               >
-                <span className="grid size-[30px] place-items-center rounded-lg bg-[#244c37] text-[#f7f5ef]">
+                <span className="memost-logo-mark size-[30px]">
                   m
                 </span>
                 <span>Memo.st</span>
